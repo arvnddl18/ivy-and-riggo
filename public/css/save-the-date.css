@@ -15,9 +15,60 @@
   --crimson-light: #96393D;
   --ease-editorial: cubic-bezier(0.22, 1, 0.36, 1);
 
-  --font-serif: 'Cormorant Garamond', Georgia, serif;
-  --font-script: 'Great Vibes', cursive;
-  --font-sans: 'Lato', -apple-system, BlinkMacSystemFont, sans-serif;
+  /* ========================================================================
+     01 / CSS custom properties (Save The Date v3b · 390 × 844 px)
+     ======================================================================== */
+  /* Fonts */
+  --font-serif: "Cormorant Garamond", serif;
+  --font-script: "Pinyon Script", cursive;
+  --font-sans: "Hanken Grotesk", sans-serif;
+
+  /* Weights */
+  --weight-light: 300;
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-extrabold: 800;
+
+  /* Font sizes */
+  --text-small: 12px;
+  --text-location: 30px;
+  --text-display: 36px;
+  --text-names: 64px;
+
+  /* Tracking: Figma % → CSS em */
+  --tracking-tightest: -0.1em;   /* -10% */
+  --tracking-tight: -0.04em;     /* -4% */
+  --tracking-body: -0.02em;      /* -2% */
+  --tracking-and: 0.08em;        /* 8% */
+  --tracking-caption: 0.16em;    /* 16% */
+
+  /* Line heights */
+  --leading-auto: normal;
+  --leading-attire: 17px;
+
+  /* Colors: visible fills + strokes */
+  --color-background: #eff2ec;
+  --color-heading: #40502f;
+  --color-text: #2f3b23;
+  --color-ink: #1e2516;
+  --color-photo-border: #2c302a;
+  --color-blush: #f8d7de;
+  --color-rose: #c47886;
+  --color-olive: #8a9b3a;
+  --color-moss: #556b3f;
+
+  /* Corner radii */
+  --radius-none: 0px;
+  --radius-photo: 8px;
+
+  /* HIDDEN LAYERS ONLY — not visible */
+  --hidden-font: Arial, sans-serif;
+  --hidden-weight-bold: 700;
+  --hidden-text-footer: 11px;
+  --hidden-text-location: 24px;
+  --hidden-tracking-footer: 0.12em;
+  --hidden-color-footer: rgb(44 48 42 / 95%);
 
   /* Envelope dimensions & pull distance (kept in sync with mobile media query) */
   --env-h: 295px;
@@ -547,9 +598,9 @@ body {
   position: relative;
   flex-shrink: 0;
   width: 100%;
-  max-width: 470px;
+  max-width: 390px;
   background: transparent;
-  border-radius: 18px;
+  border-radius: var(--radius-none);
   overflow: visible;
   transform-style: preserve-3d;
   transform-origin: center top;
@@ -585,11 +636,11 @@ body {
 /* Phase 4 (Settled): Unified paper drop shadow once flat */
 .unified-stage.phase-settled .std-card-frame {
   box-shadow: 0 28px 72px rgba(35, 48, 28, 0.18);
-  border-radius: 18px;
+  border-radius: var(--radius-none);
 }
 
 /* ==========================================================================
-   Crisp Retina HTML/CSS 3-Panel Tri-Fold Letter
+   100% Exact Figma Recreation: Save The Date v3b · 390 × 844 px
    ========================================================================== */
 .std-hd-card {
   width: 100%;
@@ -597,7 +648,8 @@ body {
   flex-direction: column;
   align-items: stretch;
   text-align: center;
-  color: #354230;
+  color: var(--color-text);
+  background: transparent;
   transform-style: preserve-3d;
   perspective: 1800px;
 }
@@ -613,7 +665,7 @@ body {
   width: 100%;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  background: #F4F5EF;
+  background: var(--color-background);
 }
 
 .trifold-face--back {
@@ -632,7 +684,7 @@ body {
   border-radius: 8px;
 }
 
-/* Subtle horizontal paper fold creases that soften once completely flat */
+/* Subtle horizontal paper fold creases that disappear completely once flat */
 .trifold-crease {
   position: absolute;
   left: 0;
@@ -658,48 +710,6 @@ body {
   opacity: 0;
 }
 
-/* Exact 3-panel seamless image slices of the user's original 473x1024 Save Our Date image */
-.trifold-slice {
-  position: relative;
-  width: 100%;
-  overflow: hidden;
-  background: #F4F5EF;
-}
-
-.trifold-slice--top {
-  aspect-ratio: 473 / 456;
-}
-
-.trifold-slice--middle {
-  aspect-ratio: 473 / 226;
-}
-
-.trifold-slice--bottom {
-  aspect-ratio: 473 / 342;
-}
-
-.trifold-slice-img {
-  position: absolute;
-  left: 0;
-  width: 100%;
-  height: auto;
-  display: block;
-  pointer-events: none;
-  user-select: none;
-}
-
-.trifold-slice-img--top {
-  top: 0;
-}
-
-.trifold-slice-img--middle {
-  top: calc(-456 / 226 * 100%);
-}
-
-.trifold-slice-img--bottom {
-  top: calc(-682 / 342 * 100%);
-}
-
 /* PANEL 1 (TOP FOLD): Starts folded forward (-176deg) over Panel 2, then unfolds upward smoothly */
 .trifold-panel--top {
   z-index: 4;
@@ -709,10 +719,11 @@ body {
 }
 
 .trifold-panel--top .trifold-face--front {
-  padding: 0;
-  border-radius: 18px 18px 0 0;
-  border: 1px solid rgba(53, 66, 48, 0.10);
-  border-bottom: none;
+  padding: 80px 33.5px 18px;
+  border-radius: var(--radius-none);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .trifold-panel--top .trifold-face--back {
@@ -723,10 +734,11 @@ body {
 /* PANEL 2 (CENTER ANCHOR): Stays flat in the middle */
 .trifold-panel--middle {
   z-index: 2;
-  background: #F4F5EF;
-  padding: 0;
-  border-left: 1px solid rgba(53, 66, 48, 0.10);
-  border-right: 1px solid rgba(53, 66, 48, 0.10);
+  background: var(--color-background);
+  padding: 16px 24px 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   box-shadow: 0 18px 42px rgba(35, 48, 28, 0.14);
   transition: box-shadow 700ms ease;
 }
@@ -747,9 +759,10 @@ body {
 }
 
 .trifold-panel--bottom .trifold-face--front {
-  padding: 0;
-  border-left: 1px solid rgba(53, 66, 48, 0.10);
-  border-right: 1px solid rgba(53, 66, 48, 0.10);
+  padding: 17px 24px 34px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 /* Continuous 3D Unfold in Phase 3 */
@@ -762,147 +775,201 @@ body {
   transform: rotateX(0deg);
 }
 
+/* 02 / Typography usage — SAVE OUR DATE: serif / 600 / 36px / -0.04em / normal / heading */
 .std-hd-heading {
-  font-family: 'Cinzel', 'Cormorant Garamond', Georgia, serif;
-  font-weight: 400;
-  font-size: 32px;
-  letter-spacing: 0.08em;
-  line-height: 1.2;
-  color: #354230;
-  margin-bottom: 26px;
+  font-family: var(--font-serif);
+  font-weight: var(--weight-semibold);
+  font-size: var(--text-display);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-auto);
+  color: var(--color-heading);
+  margin: 0 0 31px;
 }
 
+/* Photo: 323 × 186 px, 8px radius on all four corners, border #2c302a */
 .std-hd-photo-frame {
   width: 100%;
-  border-radius: 10px;
+  max-width: 323px;
+  aspect-ratio: 323 / 186;
+  border-radius: var(--radius-photo);
   overflow: hidden;
-  border: 1.2px solid #2B3626;
-  box-shadow: 0 8px 24px rgba(35, 48, 28, 0.08);
-  margin-bottom: 14px;
+  border: 1px solid var(--color-photo-border);
+  margin: 0 0 8px;
 }
 
 .std-hd-photo-frame img {
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: cover;
   display: block;
-  transform: scale(1.04);
-  transition: transform 1600ms var(--ease-editorial) 200ms;
 }
 
-.unified-stage.phase-unfold .std-hd-photo-frame img {
-  transform: scale(1);
-}
-
+/* ( WE’RE GETTING MARRIED ): sans / 500 / 12px / 0.16em / normal / text */
 .std-hd-kicker {
-  font-family: 'Montserrat', var(--font-sans);
-  font-weight: 500;
-  font-size: 11px;
-  letter-spacing: 0.16em;
-  color: #2B3626;
-  margin-bottom: 24px;
+  font-family: var(--font-sans);
+  font-weight: var(--weight-medium);
+  font-size: var(--text-small);
+  letter-spacing: var(--tracking-caption);
+  line-height: var(--leading-auto);
+  color: var(--color-text);
+  margin: 0;
 }
 
+/* Riggo + Ivy: script / 400 / 64px / -0.1em / normal / heading */
 .std-hd-names {
   display: flex;
   align-items: baseline;
   justify-content: center;
-  gap: 12px;
-  margin-bottom: 22px;
+  gap: 10px;
+  margin: 0 0 8px;
   flex-wrap: nowrap;
 }
 
 .std-hd-script {
-  font-family: 'Pinyon Script', 'Great Vibes', cursive;
-  font-weight: 400;
-  font-size: 62px;
-  line-height: 1;
-  color: #354230;
+  font-family: var(--font-script);
+  font-weight: var(--weight-regular);
+  font-size: var(--text-names);
+  letter-spacing: var(--tracking-tightest);
+  line-height: var(--leading-auto);
+  color: var(--color-heading);
+  /* Slight right padding compensates for negative -0.1em tracking on the trailing swash */
+  padding-right: 0.08em;
 }
 
+/* AND: sans / 500 / 12px / 0.08em / normal / text */
 .std-hd-and {
-  font-family: 'Montserrat', var(--font-sans);
-  font-weight: 500;
-  font-size: 12px;
-  letter-spacing: 0.14em;
-  color: #2B3626;
-  transform: translateY(-6px);
+  font-family: var(--font-sans);
+  font-weight: var(--weight-medium);
+  font-size: var(--text-small);
+  letter-spacing: var(--tracking-and);
+  line-height: var(--leading-auto);
+  color: var(--color-text);
 }
 
+/* 01 . 23 . 2027 & Davao City */
 .std-hd-date-block {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
-  margin-bottom: 32px;
+  gap: 0;
+  margin: 0;
 }
 
+/* 01 . 23 . 2027: serif / 500 / 36px / italic / -0.1em / normal / text */
 .std-hd-date {
-  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-family: var(--font-serif);
+  font-weight: var(--weight-medium);
   font-style: italic;
-  font-weight: 500;
-  font-size: 27px;
-  letter-spacing: 0.08em;
-  line-height: 1.2;
-  color: #354230;
+  font-size: var(--text-display);
+  letter-spacing: var(--tracking-tightest);
+  line-height: 1.02;
+  color: var(--color-text);
+  margin: 0;
+  padding-right: 0.08em;
 }
 
+/* Davao City: serif / 500 / 30px / italic / -0.1em / normal / text */
 .std-hd-city {
-  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-family: var(--font-serif);
+  font-weight: var(--weight-medium);
   font-style: italic;
-  font-weight: 500;
-  font-size: 27px;
-  line-height: 1.2;
-  color: #354230;
+  font-size: var(--text-location);
+  letter-spacing: var(--tracking-tightest);
+  line-height: 1.06;
+  color: var(--color-text);
+  margin: 0;
+  padding-right: 0.08em;
 }
 
+/* Attire section */
 .std-hd-attire {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 30px;
+  margin: 0 0 33px;
 }
 
+/* Strictly Formal attire is requested: sans / 800 / 12px / -0.02em / normal / text */
 .std-hd-attire-title {
-  font-family: 'Montserrat', var(--font-sans);
-  font-weight: 700;
-  font-size: 11.5px;
-  letter-spacing: 0.06em;
-  color: #232B20;
+  font-family: var(--font-sans);
+  font-weight: var(--weight-extrabold);
+  font-size: var(--text-small);
+  letter-spacing: var(--tracking-body);
+  line-height: var(--leading-auto);
+  color: var(--color-text);
+  text-transform: uppercase;
+  margin: 0 0 7px;
 }
 
+/* Ladies & Gentlemen — mixed weights */
 .std-hd-attire-line {
-  font-family: 'Montserrat', var(--font-sans);
-  font-weight: 400;
-  font-size: 11px;
-  letter-spacing: 0.04em;
-  line-height: 1.5;
-  color: #2B3626;
+  font-family: var(--font-sans);
+  font-size: var(--text-small);
+  letter-spacing: var(--tracking-body);
+  color: var(--color-text);
+  margin: 0;
 }
 
-.std-hd-attire-line strong {
-  font-weight: 700;
+.std-hd-attire-line--ladies {
+  line-height: var(--leading-attire);
 }
 
+.std-hd-attire-line--gentlemen {
+  line-height: var(--leading-auto);
+}
+
+.std-hd-attire-line .attire-role {
+  font-weight: var(--weight-extrabold);
+  color: var(--color-text);
+}
+
+.std-hd-attire-line .attire-sep {
+  font-weight: var(--weight-regular);
+  color: var(--color-ink);
+}
+
+.std-hd-attire-line .attire-desc {
+  font-weight: var(--weight-light);
+  color: var(--color-text);
+}
+
+/* Swatches: circular 50%, #1e2516 border */
 .std-hd-swatches {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  margin: 4px 0;
+  gap: 5px;
+  margin: 6px 0 7px;
 }
 
 .std-hd-swatch {
-  width: 22px;
-  height: 22px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
-  border: 1px solid rgba(43, 54, 38, 0.22);
+  border: 0.6px solid rgba(30, 37, 22, 0.32);
   display: inline-block;
 }
 
+.std-hd-swatch--blush {
+  background-color: var(--color-blush);
+}
+
+.std-hd-swatch--rose {
+  background-color: var(--color-rose);
+}
+
+.std-hd-swatch--olive {
+  background-color: var(--color-olive);
+}
+
+.std-hd-swatch--moss {
+  background-color: var(--color-moss);
+}
+
+/* RG / IVY Monogram: 52 × 65 px centered */
 .std-hd-monogram {
-  width: 58px;
-  margin: 0 auto 24px;
+  width: 52px;
+  margin: 0 auto 33px;
 }
 
 .std-hd-monogram img {
@@ -911,20 +978,23 @@ body {
   display: block;
 }
 
+/* FORMAL INVITATION TO FOLLOW: sans / 800 / 12px / -0.02em / normal / text */
 .std-hd-footer-note {
-  font-family: 'Montserrat', var(--font-sans);
-  font-weight: 700;
-  font-size: 11.5px;
-  letter-spacing: 0.06em;
-  color: #232B20;
+  font-family: var(--font-sans);
+  font-weight: var(--weight-extrabold);
+  font-size: var(--text-small);
+  letter-spacing: var(--tracking-body);
+  line-height: var(--leading-auto);
+  color: var(--color-text);
+  text-transform: uppercase;
+  margin: 0;
 }
 
 .std-card-actions {
   padding: 20px 24px 26px;
-  background: #F4F5EF;
-  border-radius: 0 0 18px 18px;
-  border: 1px solid rgba(53, 66, 48, 0.10);
-  border-top: 1px solid rgba(53, 66, 48, 0.08);
+  background: var(--color-background);
+  border-radius: var(--radius-none);
+  border-top: 1px solid rgba(47, 59, 35, 0.10);
   display: flex;
   justify-content: center;
   opacity: 0;
@@ -1277,26 +1347,13 @@ body {
     padding: 64px 12px 32px;
   }
   .trifold-panel--top .trifold-face--front {
-    padding: 0;
+    padding: 72px 24px 18px;
   }
   .trifold-panel--middle {
-    padding: 0;
+    padding: 16px 20px 18px;
   }
   .trifold-panel--bottom .trifold-face--front {
-    padding: 0;
-  }
-  .std-hd-heading {
-    font-size: 26px;
-  }
-  .std-hd-script {
-    font-size: 50px;
-  }
-  .std-hd-date,
-  .std-hd-city {
-    font-size: 24px;
-  }
-  .std-hd-attire-line {
-    font-size: 10px;
+    padding: 17px 20px 32px;
   }
   .warning-dialog {
     padding: 32px 22px 26px;
