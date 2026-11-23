@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Save Our Date — Riggo &amp; Ivy | 01.23.2027 Davao City</title>
+  <meta name="description" content="Save Our Date! Riggo and Ivy are getting married on January 23, 2027 in Davao City." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,600&family=Great+Vibes&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="save-the-date.css?v=5" />
+</head>
+<body>
+
+  <!-- Background Music Player (MP4 audio track, gentle fade-in from 0 to soft mid volume) -->
+  <video id="bgMusic" src="assets/bg-music.mp4" loop playsinline preload="auto" aria-hidden="true" style="position:fixed;width:1px;height:1px;opacity:0;pointer-events:none;"></video>
+
+  <!-- Floating Compact Music Control Dock (Play/Pause + Volume Slider + Mute) -->
+  <div class="music-dock" id="musicDock" role="region" aria-label="Background Music Controls">
+    <button type="button" class="music-toggle" id="musicToggle" aria-label="Play or Pause Background Music" aria-pressed="false">
+      <span class="music-bars" aria-hidden="true">
+        <span></span><span></span><span></span>
+      </span>
+      <span class="music-toggle__label" id="musicLabel">Music Off</span>
+    </button>
+
+    <div class="music-volume-wrap" aria-label="Volume Control">
+      <button type="button" class="music-mute-btn" id="musicMuteBtn" aria-label="Mute or Unmute">
+        <!-- Speaker icon (unmuted) -->
+        <svg class="icon-vol-on" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+          <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+        </svg>
+        <!-- Speaker muted icon -->
+        <svg class="icon-vol-off" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+          <line x1="23" y1="9" x2="17" y2="15"></line>
+          <line x1="17" y1="9" x2="23" y2="15"></line>
+        </svg>
+      </button>
+      <input
+        type="range"
+        class="music-slider"
+        id="volumeSlider"
+        min="0"
+        max="100"
+        value="32"
+        aria-label="Music Volume"
+      />
+      <span class="music-vol-pct" id="volumePct">32%</span>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       Step 1: Interactive Luxury Wax-Sealed Linen Envelope Cover
+       ======================================================================== -->
+  <div class="envelope-gate" id="envelopeGate">
+    <!-- Subtle editorial background orbital lines -->
+    <div class="gate-bg-ornament" aria-hidden="true">
+      <svg viewBox="0 0 1200 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="600" cy="400" rx="520" ry="260" transform="rotate(-14 600 400)" stroke="rgba(114, 38, 41, 0.14)" stroke-width="1.2" vector-effect="non-scaling-stroke"/>
+        <ellipse cx="600" cy="400" rx="460" ry="220" transform="rotate(11 600 400)" stroke="rgba(53, 66, 48, 0.14)" stroke-width="1.2" vector-effect="non-scaling-stroke"/>
+      </svg>
+    </div>
+
+    <div class="envelope-scene" id="envelopeScene">
+      <!-- Realistic Sealed Wedding Envelope -->
+      <div class="luxury-envelope" id="luxuryEnvelope" role="button" tabindex="0" aria-label="Open Riggo and Ivy Save Our Date Envelope">
+        <!-- Back interior lining -->
+        <div class="env-back"></div>
+
+        <!-- Peek of the ACTUAL Save the Date card sliding out of the envelope -->
+        <div class="env-letter-peek">
+          <img src="assets/save-the-date.png" alt="" aria-hidden="true" />
+        </div>
+
+        <!-- Envelope side & bottom folds -->
+        <div class="env-pocket-left"></div>
+        <div class="env-pocket-right"></div>
+        <div class="env-pocket-bottom"></div>
+
+        <!-- Top Triangular Envelope Flap (Opens upward in 3D!) -->
+        <div class="env-flap"></div>
+
+        <!-- Center Crimson Wax Seal with Embossed RG / IVY Monogram -->
+        <div class="wax-seal-wrapper" id="openCardBtn">
+          <span class="wax-seal-pulse" aria-hidden="true"></span>
+          <div class="wax-seal">
+            <div class="wax-seal__inner-ring">
+              <img src="rg-ivy-cream.png" alt="RG &amp; IVY Wax Seal" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Subtle Editorial Prompt Below Envelope -->
+      <div class="envelope-caption">
+        <span class="envelope-caption__line"></span>
+        <span class="envelope-caption__text">Tap the seal to open</span>
+        <span class="envelope-caption__line"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       Step 2: Save the Date Card View
+       ======================================================================== -->
+  <main class="std-stage" id="stdStage" aria-hidden="true">
+    <div class="std-card-frame" id="stdCardFrame">
+      <!-- High-Resolution Save the Date Card Image -->
+      <img class="std-card-img" src="assets/save-the-date.png" alt="Save Our Date — Riggo and Ivy — 01.23.2027 Davao City — Strictly Formal Attire Is Requested" />
+
+      <!-- Bottom Action Bar -->
+      <div class="std-card-actions">
+        <button type="button" class="std-action-btn std-action-btn--primary" id="doneViewingBtn">
+          Close &amp; Continue
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- ========================================================================
+       Step 3: Warning Sign / Kind Note Modal (Appears when guest clicks Close)
+       ======================================================================== -->
+  <div class="warning-backdrop" id="warningModal" role="dialog" aria-modal="true" aria-labelledby="warningTitle" aria-hidden="true">
+    <div class="warning-dialog">
+      <!-- Solid cream curtain that covers the message while the warning icon starts large in the center -->
+      <div class="warning-intro-curtain" aria-hidden="true"></div>
+
+      <div class="warning-badge" aria-hidden="true">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+          <line x1="12" y1="9" x2="12" y2="13"></line>
+          <line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>
+      </div>
+
+      <div class="warning-content">
+        <p class="warning-eyebrow">IMPORTANT REMINDER</p>
+        <h2 class="warning-title" id="warningTitle">A KIND NOTE TO OUR GUESTS 🤍</h2>
+
+        <div class="warning-divider" aria-hidden="true"></div>
+
+        <div class="warning-body">
+          <p>
+            This invitation is personal and non-transferable. We kindly ask that you refrain from sharing or forwarding it.
+          </p>
+          <p>
+            To keep our celebration intimate, we respectfully request that only the guest(s) named on the invitation attend. Children and toddlers may only be accommodated if specifically indicated.
+          </p>
+          <p class="warning-closing">
+            Thank you for your kind understanding and for respecting our wishes. 🤍
+          </p>
+        </div>
+
+        <div class="warning-monogram">
+          <img src="rg-ivy-monogram.png" alt="RG &amp; IVY" />
+        </div>
+
+        <div class="warning-actions">
+          <button type="button" class="warning-btn warning-btn--primary" id="acknowledgeBtn">
+            I Understand 🤍
+          </button>
+          <p class="warning-acknowledged-note" id="acknowledgedNote" aria-live="polite">
+            Thank you! Formal invitation details will follow soon.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="save-the-date.js?v=5"></script>
+</body>
+</html>
