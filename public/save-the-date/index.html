@@ -28,7 +28,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,600&family=Great+Vibes&family=Lato:wght@300;400;700&family=Montserrat:wght@400;600;700&family=Pinyon+Script&display=swap" rel="stylesheet" />
 
-  <link rel="stylesheet" href="/css/save-the-date.css?v=6" />
+  <link rel="stylesheet" href="/css/save-the-date.css?v=8" />
 </head>
 <body>
 
@@ -72,9 +72,10 @@
   </div>
 
   <!-- ========================================================================
-       Step 1: Interactive Luxury Wax-Sealed Linen Envelope Cover
+       Unified Continuous Stage: Sealed Envelope -> Slow Pull-Out -> 3-Fold Unfold
+       (Single continuous DOM element — zero cut or jump between envelope & letter!)
        ======================================================================== -->
-  <div class="envelope-gate" id="envelopeGate">
+  <main class="unified-stage" id="unifiedStage">
     <!-- Subtle editorial background orbital lines -->
     <div class="gate-bg-ornament" aria-hidden="true">
       <svg viewBox="0 0 1200 800" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -83,26 +84,84 @@
       </svg>
     </div>
 
-    <div class="envelope-scene" id="envelopeScene">
-      <!-- Realistic Sealed Wedding Envelope -->
-      <div class="luxury-envelope" id="luxuryEnvelope" role="button" tabindex="0" aria-label="Open Riggo and Ivy Save Our Date Envelope">
-        <!-- Back interior lining -->
+    <!-- Envelope Layer: Back & Front are separate z-index siblings so the real letter sits PHYSICALLY INSIDE between them! -->
+    <div class="envelope-layer envelope-layer--back" aria-hidden="true">
+      <div class="luxury-envelope luxury-envelope--back">
         <div class="env-back"></div>
+        <div class="env-flap"></div>
+      </div>
+    </div>
 
-        <!-- Peek of the ACTUAL Save the Date card sliding out of the envelope -->
-        <div class="env-letter-peek">
-          <img src="/assets/save-the-date.png" alt="" aria-hidden="true" />
+    <!-- THE ONE AND ONLY 3-Panel Tri-Fold Letter inside a bottom-clipped envelope pocket slot (z-index: 14) -->
+    <div class="letter-pocket-clip" id="letterPocketClip">
+    <div class="std-card-frame trifold-letter" id="stdCardFrame" aria-hidden="true">
+      <article class="std-hd-card" aria-label="Save Our Date — Riggo and Ivy — 01.23.2027 Davao City">
+
+        <!-- PANEL 1 (TOP FOLD): Original Save Our Date image slice 0..456px -->
+        <div class="trifold-panel trifold-panel--top">
+          <div class="trifold-face trifold-face--front trifold-slice trifold-slice--top">
+            <img
+              class="trifold-slice-img trifold-slice-img--top"
+              src="/assets/save-the-date.png"
+              alt="Save Our Date — Riggo and Ivy — 01.23.2027 Davao City"
+              decoding="async"
+            />
+          </div>
+          <div class="trifold-face trifold-face--back" aria-hidden="true">
+            <div class="trifold-back-paper"></div>
+          </div>
         </div>
 
-        <!-- Envelope side & bottom folds -->
+        <!-- PANEL 2 (CENTER ANCHOR): Original Save Our Date image slice 456..682px -->
+        <div class="trifold-panel trifold-panel--middle">
+          <div class="trifold-crease trifold-crease--top" aria-hidden="true"></div>
+          <div class="trifold-slice trifold-slice--middle">
+            <img
+              class="trifold-slice-img trifold-slice-img--middle"
+              src="/assets/save-the-date.png"
+              alt=""
+              aria-hidden="true"
+              decoding="async"
+            />
+          </div>
+          <div class="trifold-crease trifold-crease--bottom" aria-hidden="true"></div>
+        </div>
+
+        <!-- PANEL 3 (BOTTOM FOLD): Original Save Our Date image slice 682..1024px -->
+        <div class="trifold-panel trifold-panel--bottom">
+          <div class="trifold-face trifold-face--front trifold-slice trifold-slice--bottom">
+            <img
+              class="trifold-slice-img trifold-slice-img--bottom"
+              src="/assets/save-the-date.png"
+              alt=""
+              aria-hidden="true"
+              decoding="async"
+            />
+          </div>
+          <div class="trifold-face trifold-face--back" aria-hidden="true">
+            <div class="trifold-back-paper"></div>
+          </div>
+        </div>
+
+      </article>
+
+      <!-- Bottom Action Bar -->
+      <div class="std-card-actions">
+        <button type="button" class="std-action-btn std-action-btn--primary" id="doneViewingBtn">
+          Close &amp; Continue
+        </button>
+      </div>
+    </div>
+    </div>
+
+    <!-- Envelope Front Pocket & Wax Seal (z-index: 16 — sits IN FRONT of the tucked letter so the letter emerges from INSIDE the pocket!) -->
+    <div class="envelope-layer envelope-layer--front" id="envelopeLayer">
+      <div class="luxury-envelope luxury-envelope--front" id="luxuryEnvelope" role="button" tabindex="0" aria-label="Open Riggo and Ivy Save Our Date Envelope">
         <div class="env-pocket-left"></div>
         <div class="env-pocket-right"></div>
         <div class="env-pocket-bottom"></div>
+        <div class="env-flap-closed"></div>
 
-        <!-- Top Triangular Envelope Flap (Opens upward in 3D!) -->
-        <div class="env-flap"></div>
-
-        <!-- Center Crimson Wax Seal with Embossed RG / IVY Monogram -->
         <div class="wax-seal-wrapper" id="openCardBtn">
           <span class="wax-seal-pulse" aria-hidden="true"></span>
           <div class="wax-seal">
@@ -113,68 +172,10 @@
         </div>
       </div>
 
-      <!-- Subtle Editorial Prompt Below Envelope -->
       <div class="envelope-caption">
         <span class="envelope-caption__line"></span>
         <span class="envelope-caption__text">Tap the seal to open</span>
         <span class="envelope-caption__line"></span>
-      </div>
-    </div>
-  </div>
-
-  <!-- ========================================================================
-       Step 2: Crisp Retina HTML/CSS Save the Date Card View
-       ======================================================================== -->
-  <main class="std-stage" id="stdStage" aria-hidden="true">
-    <div class="std-card-frame" id="stdCardFrame">
-      <article class="std-hd-card" aria-label="Save Our Date — Riggo and Ivy — 01.23.2027 Davao City">
-        <h1 class="std-hd-heading">SAVE OUR DATE</h1>
-
-        <div class="std-hd-photo-frame">
-          <img src="/assets/std-couple-photo.jpg" alt="Riggo and Ivy smiling outdoors with a sunflower" />
-        </div>
-
-        <p class="std-hd-kicker">( WE’RE GETTING MARRIED )</p>
-
-        <div class="std-hd-names">
-          <span class="std-hd-script">Riggo</span>
-          <span class="std-hd-and">AND</span>
-          <span class="std-hd-script">Ivy</span>
-        </div>
-
-        <div class="std-hd-date-block">
-          <p class="std-hd-date">01 . 23 . 2027</p>
-          <p class="std-hd-city">Davao City</p>
-        </div>
-
-        <div class="std-hd-attire">
-          <p class="std-hd-attire-title">STRICTLY FORMAL ATTIRE IS REQUESTED</p>
-          <p class="std-hd-attire-line">
-            <strong>LADIES</strong> - GOWN OR LONG DRESS IN THE SHADE OF
-          </p>
-          <div class="std-hd-swatches" role="list" aria-label="Ladies dress color palette">
-            <span class="std-hd-swatch" role="listitem" style="background-color: #F3D3D8;" title="Soft Blush"></span>
-            <span class="std-hd-swatch" role="listitem" style="background-color: #B96A7C;" title="Dusty Rose"></span>
-            <span class="std-hd-swatch" role="listitem" style="background-color: #7A943E;" title="Olive Moss"></span>
-            <span class="std-hd-swatch" role="listitem" style="background-color: #4A623B;" title="Forest Green"></span>
-          </div>
-          <p class="std-hd-attire-line">
-            <strong>GENTLEMEN</strong> - BARONG, SLACKS, LEATHER SHOES
-          </p>
-        </div>
-
-        <div class="std-hd-monogram">
-          <img src="/assets/rg-ivy-monogram.png" alt="RG &amp; IVY Monogram" />
-        </div>
-
-        <p class="std-hd-footer-note">FORMAL INVITATION TO FOLLOW</p>
-      </article>
-
-      <!-- Bottom Action Bar -->
-      <div class="std-card-actions">
-        <button type="button" class="std-action-btn std-action-btn--primary" id="doneViewingBtn">
-          Close &amp; Continue
-        </button>
       </div>
     </div>
   </main>
@@ -229,6 +230,6 @@
     </div>
   </div>
 
-  <script src="/js/save-the-date.js"></script>
+  <script src="/js/save-the-date.js?v=8"></script>
 </body>
 </html>

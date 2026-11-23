@@ -13,11 +13,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const volumeSlider = document.getElementById('volumeSlider');
   const volumePct = document.getElementById('volumePct');
 
-  const envelopeGate = document.getElementById('envelopeGate');
+  const unifiedStage = document.getElementById('unifiedStage');
   const luxuryEnvelope = document.getElementById('luxuryEnvelope');
+  const letterPocketClip = document.getElementById('letterPocketClip');
   const openCardBtn = document.getElementById('openCardBtn');
-
-  const stdStage = document.getElementById('stdStage');
+  const stdCardFrame = document.getElementById('stdCardFrame');
+  const panelTop = stdCardFrame ? stdCardFrame.querySelector('.trifold-panel--top') : null;
   const closeCardBtn = document.getElementById('closeCardBtn');
   const doneViewingBtn = document.getElementById('doneViewingBtn');
 
@@ -169,30 +170,89 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let isOpened = false;
 
+  /**
+   * Computes exact pixel translateY & scale values so the folded 3-panel letter:
+   * 1. Starts tucked strictly inside the envelope pocket (width = 86% of envelope, top edge inside the pocket).
+   * 2. Rises cleanly out of the V-notch during phase-pull (showing ~46% of envelope height above the top edge).
+   * 3. Glides continuously to translateY(0) scale(1) as it unfolds in phase-unfold with zero layout jump.
+   */
+  function syncLetterGeometry() {
+    if (!stdCardFrame || !luxuryEnvelope || !panelTop || !letterPocketClip) return;
+
+    const vh = window.innerHeight;
+    const envH = luxuryEnvelope.offsetHeight || 295;
+    const envW = luxuryEnvelope.offsetWidth || 440;
+    const cardW = stdCardFrame.offsetWidth || 470;
+    const h1 = panelTop.offsetHeight || 380;
+    const clipStyle = window.getComputedStyle(letterPocketClip);
+    const padTop = parseFloat(clipStyle.paddingTop) || 72;
+    const rootStyle = window.getComputedStyle(document.documentElement);
+    const envPullY = parseFloat(rootStyle.getPropertyValue('--env-pull-y')) || 90;
+
+    // Fit folded letter width cleanly inside the envelope with ~7% breathing room on each side
+    const tuckScale = Math.min(0.88, (envW * 0.86) / cardW);
+    const pullScale = Math.min(0.90, (envW * 0.88) / cardW);
+
+    // Envelope top edge is mathematically centered at exact 50vh
+    const envTop = (vh - envH) / 2;
+
+    // 1. Tucked inside envelope: top crease of folded packet sits 18% below envelope top (strictly hidden inside)
+    const desiredTuckTop = envTop + envH * 0.18;
+    const tuckY = desiredTuckTop - padTop - h1 * tuckScale;
+
+    // 2. Pulled out of envelope: top crease rises 46% of envelope height ABOVE the pulled-down envelope top
+    const pulledEnvTop = envTop + envPullY;
+    const desiredPullTop = Math.max(24, pulledEnvTop - envH * 0.46);
+    const pullY = desiredPullTop - padTop - h1 * pullScale;
+
+    stdCardFrame.style.setProperty('--letter-tuck-scale', tuckScale.toFixed(4));
+    stdCardFrame.style.setProperty('--letter-pull-scale', pullScale.toFixed(4));
+    stdCardFrame.style.setProperty('--letter-tuck-y', `${tuckY.toFixed(1)}px`);
+    stdCardFrame.style.setProperty('--letter-pull-y', `${pullY.toFixed(1)}px`);
+  }
+
+  syncLetterGeometry();
+  window.addEventListener('load', syncLetterGeometry);
+  window.addEventListener('resize', () => {
+    if (!isOpened) syncLetterGeometry();
+  });
+
   function openSaveTheDate() {
     if (isOpened) return;
+    syncLetterGeometry();
     isOpened = true;
 
-    // 1. Start gentle low-to-mid background music fade-in
+    // 1. Start gentle low-to-mid background music fade-in immediately
     startMusicWithGentleFadeIn();
 
-    // 2. Animate the 3D envelope flap opening & real Save Our Date card sliding up
-    if (luxuryEnvelope) {
-      luxuryEnvelope.classList.add('is-opening');
+    // 2. Phase 1 (0ms): Dissolve wax seal & flip 3D envelope flap open
+    if (unifiedStage) {
+      unifiedStage.classList.add('phase-flap');
     }
 
-    // 3. Cross-fade smoothly into the full Save Our Date card
+    // 3. Phase 2 (480ms): The real folded 3-panel letter rises smoothly out of the envelope as the envelope glides down
     setTimeout(() => {
-      if (stdStage) {
-        requestAnimationFrame(() => {
-          stdStage.classList.add('is-visible');
-          stdStage.setAttribute('aria-hidden', 'false');
-        });
+      if (unifiedStage) {
+        unifiedStage.classList.add('phase-pull');
       }
-      if (envelopeGate) {
-        envelopeGate.classList.add('is-hidden');
+    }, 480);
+
+    // 4. Phase 3 (1350ms): Continuous unfold — envelope finishes gliding away while the top & bottom letter panels unfold in 3D
+    setTimeout(() => {
+      if (unifiedStage) {
+        unifiedStage.classList.add('phase-unfold');
       }
-    }, 1250);
+      if (stdCardFrame) {
+        stdCardFrame.setAttribute('aria-hidden', 'false');
+      }
+    }, 1350);
+
+    // 5. Phase 4 (2750ms): Unified flat letter settles with soft paper shadow
+    setTimeout(() => {
+      if (unifiedStage) {
+        unifiedStage.classList.add('phase-settled');
+      }
+    }, 2750);
   }
 
   function openWarningModal() {

@@ -18,6 +18,10 @@
   --font-serif: 'Cormorant Garamond', Georgia, serif;
   --font-script: 'Great Vibes', cursive;
   --font-sans: 'Lato', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Envelope dimensions & pull distance (kept in sync with mobile media query) */
+  --env-h: 295px;
+  --env-pull-y: 90px;
 }
 
 *,
@@ -213,36 +217,26 @@ body {
 }
 
 /* ==========================================================================
-   Step 1: Luxury Wax-Sealed Linen Envelope Cover
+   Unified Continuous Stage (Envelope + Real 3-Fold Letter in One Coordinate System)
    ========================================================================== */
-.envelope-gate {
-  position: fixed;
-  inset: 0;
-  z-index: 90;
-  background:
-    radial-gradient(circle at 50% 42%, #FAF9F4 0%, #EAE8DF 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  opacity: 1;
-  transition: opacity 850ms var(--ease-editorial), visibility 850ms var(--ease-editorial);
-}
-
-.envelope-gate.is-hidden {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
+.unified-stage {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  background: radial-gradient(circle at 50% 42%, #FAF9F4 0%, #EAE8DF 100%);
+  perspective: 1800px;
+  overflow: hidden;
 }
 
 .gate-bg-ornament {
-  position: absolute;
+  position: fixed;
   inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   pointer-events: none;
   overflow: hidden;
+  z-index: 0;
 }
 
 .gate-bg-ornament svg {
@@ -253,15 +247,44 @@ body {
   flex-shrink: 0;
 }
 
-.envelope-scene {
-  position: relative;
-  z-index: 2;
+/* Envelope Layers: Back (z=12) and Front Pocket (z=16) sandwich the real letter (z=14) physically INSIDE at exact 50vh! */
+.envelope-layer {
+  position: fixed;
+  inset: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 36px;
-  perspective: 1400px;
-  animation: fadeUpIn 1s var(--ease-editorial) both;
+  justify-content: center;
+  padding: 24px;
+  perspective: 1600px;
+  transition:
+    transform 1150ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 850ms cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0ms linear 1200ms;
+}
+
+.envelope-layer--back {
+  z-index: 12;
+  pointer-events: none;
+}
+
+.envelope-layer--front {
+  z-index: 16;
+  pointer-events: auto;
+}
+
+/* Phase 2 (Pull Out): Both back & front envelope layers glide gently down together as the real letter rises out from between them */
+.unified-stage.phase-pull .envelope-layer {
+  transform: translateY(var(--env-pull-y));
+  pointer-events: none;
+}
+
+/* Phase 3 (Unfold): Envelope continues gliding down & dissolves out while the letter comes to the foreground */
+.unified-stage.phase-unfold .envelope-layer {
+  transform: translateY(calc(var(--env-pull-y) + 210px)) scale(0.90);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
 }
 
 /* The 3D Tactile Linen Envelope */
@@ -269,60 +292,33 @@ body {
   position: relative;
   width: 440px;
   max-width: calc(100vw - 44px);
-  height: 295px;
-  cursor: pointer;
+  height: var(--env-h);
   transform-style: preserve-3d;
   border-radius: 6px;
-  box-shadow:
-    0 32px 70px rgba(35, 48, 28, 0.16),
-    0 8px 20px rgba(35, 48, 28, 0.08);
-  transition: transform 600ms var(--ease-editorial), box-shadow 600ms var(--ease-editorial);
   outline: none;
 }
 
-.luxury-envelope:hover {
-  transform: translateY(-6px);
+.luxury-envelope--back {
   box-shadow:
-    0 40px 85px rgba(35, 48, 28, 0.20),
-    0 12px 26px rgba(114, 38, 41, 0.08);
+    0 32px 70px rgba(35, 48, 28, 0.16),
+    0 8px 20px rgba(35, 48, 28, 0.08);
 }
 
-/* Back interior of envelope — rich botanical forest lining for contrast when flap opens */
+.luxury-envelope--front {
+  cursor: pointer;
+}
+
+/* Back interior of envelope — deep botanical forest lining */
 .env-back {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, #32402A 0%, #425238 45%, #E5E3D8 100%);
+  background: linear-gradient(180deg, #32402A 0%, #425238 48%, #E5E3D8 100%);
   border-radius: 6px;
   border: 1px solid rgba(53, 66, 48, 0.14);
   z-index: 1;
 }
 
-/* Inner ACTUAL Save the Date Card that slides smoothly up & out when opened */
-.env-letter-peek {
-  position: absolute;
-  left: 24px;
-  right: 24px;
-  top: 14px;
-  bottom: 14px;
-  background: #F4F5EF;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 8px 28px rgba(25, 34, 21, 0.16);
-  border: 1px solid rgba(53, 66, 48, 0.10);
-  z-index: 3;
-  transform: translateY(0) scale(0.98);
-  transition:
-    transform 1050ms cubic-bezier(0.22, 1, 0.36, 1) 420ms,
-    box-shadow 1050ms cubic-bezier(0.22, 1, 0.36, 1) 420ms;
-}
-
-.env-letter-peek img {
-  width: 100%;
-  height: auto;
-  display: block;
-}
-
-/* Envelope left, right, and bottom geometric paper folds (sit IN FRONT of the card!) */
+/* Envelope left, right, and bottom geometric paper folds */
 .env-pocket-left {
   position: absolute;
   inset: 0;
@@ -351,8 +347,22 @@ body {
   filter: drop-shadow(0 -3px 8px rgba(35, 48, 28, 0.08));
 }
 
-/* Top Triangular Flap — flips open in 3D behind the rising card */
+/* Opened Flap on the BACK layer (flips open behind the emerging letter!) */
 .env-flap {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #FAF9F4 0%, #ECE9DF 100%);
+  clip-path: polygon(0 0, 100% 0, 50% 56%);
+  border-radius: 6px 6px 0 0;
+  transform-origin: top center;
+  transform: rotateX(0deg);
+  z-index: 2;
+  opacity: 0;
+  transition: transform 700ms cubic-bezier(0.32, 0.72, 0, 1), opacity 10ms linear 180ms;
+}
+
+/* Closed Flap on the FRONT layer (covers the top before click, flips up to 90deg and hands off seamlessly to back flap!) */
+.env-flap-closed {
   position: absolute;
   inset: 0;
   background: linear-gradient(180deg, #FAF9F4 0%, #ECE9DF 100%);
@@ -362,10 +372,17 @@ body {
   transform: rotateX(0deg);
   z-index: 6;
   filter: drop-shadow(0 8px 14px rgba(35, 48, 28, 0.12));
-  transition:
-    transform 680ms cubic-bezier(0.32, 0.72, 0, 1),
-    z-index 0ms linear 320ms,
-    filter 400ms ease;
+  transition: transform 350ms cubic-bezier(0.4, 0, 0.6, 1), opacity 10ms linear 180ms;
+}
+
+.unified-stage.phase-flap .env-flap-closed {
+  transform: rotateX(95deg);
+  opacity: 0;
+}
+
+.unified-stage.phase-flap .env-flap {
+  transform: rotateX(180deg);
+  opacity: 1;
 }
 
 /* Crimson Wax Seal centered over the envelope flap tip */
@@ -429,55 +446,35 @@ body {
 
 .luxury-envelope:hover .wax-seal {
   transform: scale(1.07);
-  box-shadow:
-    0 14px 30px rgba(78, 22, 25, 0.44),
-    inset 0 2px 6px rgba(255, 220, 220, 0.35);
 }
 
-/* Open Sequence State when Guest Clicks the Envelope / Wax Seal */
-.luxury-envelope.is-opening {
-  transform: translateY(75px) scale(0.96);
-  transition: transform 950ms var(--ease-editorial) 350ms, box-shadow 950ms ease;
-}
-
-.luxury-envelope.is-opening .wax-seal-wrapper {
-  transform: translate(-50%, -50%) scale(1.24);
+/* Phase 1 (Flap Open): Wax seal dissolves and top flap flips open smoothly */
+.unified-stage.phase-flap .wax-seal-wrapper {
+  transform: translate(-50%, -50%) scale(1.22);
   opacity: 0;
 }
 
-.luxury-envelope.is-opening .env-flap {
+.unified-stage.phase-flap .env-flap {
   transform: rotateX(180deg);
   z-index: 2;
   filter: drop-shadow(0 -2px 6px rgba(35, 48, 28, 0.06));
 }
 
-.luxury-envelope.is-opening .env-letter-peek {
-  transform: translateY(-190px) scale(1.04);
-  box-shadow: 0 24px 56px rgba(25, 34, 21, 0.22);
-}
-
-/* Stage 2: Envelope gently drops & fades out as the card takes over */
-.envelope-gate.is-hidden {
+.unified-stage.phase-flap .envelope-caption {
   opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  transition: opacity 750ms var(--ease-editorial), visibility 750ms var(--ease-editorial);
 }
 
-.envelope-gate.is-hidden .luxury-envelope {
-  transform: translateY(150px) scale(0.92);
-}
-
-/* Subtle Caption Below Envelope */
+/* Subtle Caption Below Envelope (absolute so envelope stays centered at exact 50vh) */
 .envelope-caption {
+  position: absolute;
+  top: calc(50% + var(--env-h) / 2 + 28px);
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
   display: inline-flex;
   align-items: center;
   gap: 14px;
-  transition: opacity 400ms ease;
-}
-
-.luxury-envelope.is-opening + .envelope-caption {
-  opacity: 0;
+  transition: opacity 380ms ease;
 }
 
 .envelope-caption__line {
@@ -511,87 +508,258 @@ body {
 }
 
 /* ==========================================================================
-   Step 2: Save the Date Card Stage (Editorial Unfold & Shimmer Reveal)
+   THE ONE CONTINUOUS 3-PANEL TRI-FOLD LETTER
+   Wrapped in .letter-pocket-clip (z-index: 14 — BEHIND front envelope pocket z=16, IN FRONT of back lining z=12).
+   The clip-path bottom edge stays mathematically locked to the envelope's bottom edge during closed, flap,
+   and pull phases — making it impossible for a single pixel of the folded letter to protrude below the envelope!
    ========================================================================== */
-.std-stage {
-  min-height: 100vh;
-  width: 100%;
-  padding: 76px 20px 48px;
+.letter-pocket-clip {
+  position: fixed;
+  inset: 0;
+  z-index: 14;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  background: radial-gradient(circle at 50% 20%, #F7F8F3 0%, #E7EAE0 100%);
-  perspective: 1200px;
-  opacity: 0;
-  transition: opacity 900ms var(--ease-editorial);
+  padding: 72px 20px 48px;
+  overflow: hidden;
+  pointer-events: none;
+  /* Clips strictly at the envelope's bottom edge (50vh + var(--env-h)/2 - 2px) while leaving the top 100% open */
+  clip-path: inset(0px 0px calc(50vh - var(--env-h) / 2 + 2px) 0px);
+  transition: clip-path 1150ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: clip-path;
 }
 
-.std-stage.is-visible {
-  opacity: 1;
+/* Phase 2 (Pull Out): Bottom clip boundary glides down in exact lockstep with the envelope! */
+.unified-stage.phase-pull .letter-pocket-clip {
+  clip-path: inset(0px 0px calc(50vh - var(--env-h) / 2 - var(--env-pull-y) + 2px) 0px);
+}
+
+/* Phase 3 (Unfold): Clip opens completely, rises to foreground (z=18), and enables smooth native scrolling */
+.unified-stage.phase-unfold .letter-pocket-clip {
+  z-index: 18;
+  clip-path: inset(0px 0px 0px 0px);
+  pointer-events: auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .std-card-frame {
   position: relative;
+  flex-shrink: 0;
   width: 100%;
   max-width: 470px;
-  background: #F4F5EF;
+  background: transparent;
   border-radius: 18px;
-  overflow: hidden;
-  box-shadow: 0 28px 72px rgba(35, 48, 28, 0.18);
-  border: 1px solid rgba(53, 66, 48, 0.12);
-  opacity: 0;
-  transform: translateY(64px) scale(0.92) rotateX(8deg);
-  filter: blur(6px);
+  overflow: visible;
+  transform-style: preserve-3d;
   transform-origin: center top;
-  transition:
-    opacity 1100ms var(--ease-editorial) 150ms,
-    transform 1250ms var(--ease-editorial) 150ms,
-    filter 1000ms var(--ease-editorial) 150ms;
-  will-change: opacity, transform, filter;
-}
-
-.std-stage.is-visible .std-card-frame {
-  opacity: 1;
-  transform: translateY(0) scale(1) rotateX(0deg);
-  filter: blur(0);
-}
-
-.std-card-frame::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    115deg,
-    transparent 20%,
-    rgba(255, 255, 255, 0.55) 48%,
-    transparent 76%
-  );
-  transform: translateX(-120%);
+  opacity: 0;
   pointer-events: none;
-  z-index: 6;
+  /* Starts tucked physically inside the envelope pocket (exact --letter-tuck-y computed in JS for every screen) */
+  transform: translateY(var(--letter-tuck-y, -40px)) scale(var(--letter-tuck-scale, 0.82));
+  transition:
+    opacity 260ms ease,
+    transform 1150ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 950ms cubic-bezier(0.22, 1, 0.36, 1) 1100ms;
+  will-change: opacity, transform;
 }
 
-.std-stage.is-visible .std-card-frame::after {
-  animation: cardShimmer 1.4s var(--ease-editorial) 700ms forwards;
+/* Phase 1 (Flap Open): Make the folded letter inside the pocket visible behind the front pocket flaps */
+.unified-stage.phase-flap .std-card-frame {
+  opacity: 1;
 }
 
-@keyframes cardShimmer {
-  0% { transform: translateX(-120%); opacity: 0.9; }
-  100% { transform: translateX(130%); opacity: 0; }
+/* Phase 2 (Pull Out): The folded letter physically glides UP out of the envelope pocket (behind z=16 front pocket!) */
+.unified-stage.phase-pull .std-card-frame {
+  opacity: 1;
+  transform: translateY(var(--letter-pull-y, -155px)) scale(var(--letter-pull-scale, 0.84));
+}
+
+/* Phase 3 (Unfold): Letter clears the envelope pocket, glides smoothly to y=0 scale=1, and unfolds top & bottom panels */
+.unified-stage.phase-unfold .std-card-frame {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+}
+
+/* Phase 4 (Settled): Unified paper drop shadow once flat */
+.unified-stage.phase-settled .std-card-frame {
+  box-shadow: 0 28px 72px rgba(35, 48, 28, 0.18);
+  border-radius: 18px;
 }
 
 /* ==========================================================================
-   Crisp Retina HTML/CSS Save Our Date Card (Infinite Vector Resolution!)
+   Crisp Retina HTML/CSS 3-Panel Tri-Fold Letter
    ========================================================================== */
 .std-hd-card {
   width: 100%;
-  background: #F4F5EF;
-  padding: 54px 32px 38px;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   text-align: center;
   color: #354230;
+  transform-style: preserve-3d;
+  perspective: 1800px;
+}
+
+.trifold-panel {
+  position: relative;
+  width: 100%;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.trifold-face {
+  width: 100%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  background: #F4F5EF;
+}
+
+.trifold-face--back {
+  position: absolute;
+  inset: 0;
+  transform: rotateX(180deg);
+  background: linear-gradient(180deg, #ECEEE4 0%, #E3E6DA 100%);
+  border: 1px solid rgba(53, 66, 48, 0.12);
+  box-shadow: inset 0 0 28px rgba(35, 48, 28, 0.06);
+}
+
+.trifold-back-paper {
+  position: absolute;
+  inset: 14px;
+  border: 1px solid rgba(53, 66, 48, 0.08);
+  border-radius: 8px;
+}
+
+/* Subtle horizontal paper fold creases that soften once completely flat */
+.trifold-crease {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 18px;
+  pointer-events: none;
+  z-index: 4;
+  opacity: 0.75;
+  transition: opacity 750ms ease;
+}
+
+.trifold-crease--top {
+  top: 0;
+  background: linear-gradient(180deg, rgba(35, 48, 28, 0.12) 0%, transparent 100%);
+}
+
+.trifold-crease--bottom {
+  bottom: 0;
+  background: linear-gradient(0deg, rgba(35, 48, 28, 0.12) 0%, transparent 100%);
+}
+
+.unified-stage.phase-settled .trifold-crease {
+  opacity: 0;
+}
+
+/* Exact 3-panel seamless image slices of the user's original 473x1024 Save Our Date image */
+.trifold-slice {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background: #F4F5EF;
+}
+
+.trifold-slice--top {
+  aspect-ratio: 473 / 456;
+}
+
+.trifold-slice--middle {
+  aspect-ratio: 473 / 226;
+}
+
+.trifold-slice--bottom {
+  aspect-ratio: 473 / 342;
+}
+
+.trifold-slice-img {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: auto;
+  display: block;
+  pointer-events: none;
+  user-select: none;
+}
+
+.trifold-slice-img--top {
+  top: 0;
+}
+
+.trifold-slice-img--middle {
+  top: calc(-456 / 226 * 100%);
+}
+
+.trifold-slice-img--bottom {
+  top: calc(-682 / 342 * 100%);
+}
+
+/* PANEL 1 (TOP FOLD): Starts folded forward (-176deg) over Panel 2, then unfolds upward smoothly */
+.trifold-panel--top {
+  z-index: 4;
+  transform-origin: bottom center;
+  transform: rotateX(-176deg);
+  transition: transform 1100ms cubic-bezier(0.22, 1, 0.36, 1) 140ms;
+}
+
+.trifold-panel--top .trifold-face--front {
+  padding: 0;
+  border-radius: 18px 18px 0 0;
+  border: 1px solid rgba(53, 66, 48, 0.10);
+  border-bottom: none;
+}
+
+.trifold-panel--top .trifold-face--back {
+  /* Bottom corners become the TOP corners when Panel 1 is folded downward (-176deg) inside the envelope */
+  border-radius: 0 0 12px 12px;
+}
+
+/* PANEL 2 (CENTER ANCHOR): Stays flat in the middle */
+.trifold-panel--middle {
+  z-index: 2;
+  background: #F4F5EF;
+  padding: 0;
+  border-left: 1px solid rgba(53, 66, 48, 0.10);
+  border-right: 1px solid rgba(53, 66, 48, 0.10);
+  box-shadow: 0 18px 42px rgba(35, 48, 28, 0.14);
+  transition: box-shadow 700ms ease;
+}
+
+.unified-stage.phase-settled .trifold-panel--middle {
+  box-shadow: none;
+}
+
+/* PANEL 3 (BOTTOM FOLD): Starts hidden behind Panel 2 (opacity 0 until unfold so it never pokes out below the envelope pocket!) */
+.trifold-panel--bottom {
+  z-index: 3;
+  transform-origin: top center;
+  transform: rotateX(176deg);
+  opacity: 0;
+  transition:
+    transform 1150ms cubic-bezier(0.22, 1, 0.36, 1) 500ms,
+    opacity 300ms ease 420ms;
+}
+
+.trifold-panel--bottom .trifold-face--front {
+  padding: 0;
+  border-left: 1px solid rgba(53, 66, 48, 0.10);
+  border-right: 1px solid rgba(53, 66, 48, 0.10);
+}
+
+/* Continuous 3D Unfold in Phase 3 */
+.unified-stage.phase-unfold .trifold-panel--top {
+  transform: rotateX(0deg);
+}
+
+.unified-stage.phase-unfold .trifold-panel--bottom {
+  opacity: 1;
+  transform: rotateX(0deg);
 }
 
 .std-hd-heading {
@@ -621,7 +789,7 @@ body {
   transition: transform 1600ms var(--ease-editorial) 200ms;
 }
 
-.std-stage.is-visible .std-hd-photo-frame img {
+.unified-stage.phase-unfold .std-hd-photo-frame img {
   transform: scale(1);
 }
 
@@ -734,7 +902,7 @@ body {
 
 .std-hd-monogram {
   width: 58px;
-  margin-bottom: 24px;
+  margin: 0 auto 24px;
 }
 
 .std-hd-monogram img {
@@ -754,17 +922,19 @@ body {
 .std-card-actions {
   padding: 20px 24px 26px;
   background: #F4F5EF;
+  border-radius: 0 0 18px 18px;
+  border: 1px solid rgba(53, 66, 48, 0.10);
+  border-top: 1px solid rgba(53, 66, 48, 0.08);
   display: flex;
   justify-content: center;
-  border-top: 1px solid rgba(53, 66, 48, 0.08);
   opacity: 0;
   transform: translateY(14px);
   transition:
-    opacity 700ms var(--ease-editorial) 800ms,
-    transform 700ms var(--ease-editorial) 800ms;
+    opacity 700ms var(--ease-editorial) 1150ms,
+    transform 700ms var(--ease-editorial) 1150ms;
 }
 
-.std-stage.is-visible .std-card-actions {
+.unified-stage.phase-unfold .std-card-actions {
   opacity: 1;
   transform: translateY(0);
 }
@@ -1059,6 +1229,13 @@ body {
 }
 
 @media screen and (max-width: 540px) {
+  :root {
+    --env-h: 225px;
+    --env-pull-y: 68px;
+  }
+  .letter-pocket-clip {
+    padding: 64px 14px 36px;
+  }
   .gate-bg-ornament svg {
     width: 240vw;
     min-width: 960px;
@@ -1082,7 +1259,7 @@ body {
   }
   .luxury-envelope {
     width: 330px;
-    height: 225px;
+    height: var(--env-h);
   }
   .wax-seal,
   .wax-seal-pulse {
@@ -1099,8 +1276,14 @@ body {
   .std-stage {
     padding: 64px 12px 32px;
   }
-  .std-hd-card {
-    padding: 40px 22px 30px;
+  .trifold-panel--top .trifold-face--front {
+    padding: 0;
+  }
+  .trifold-panel--middle {
+    padding: 0;
+  }
+  .trifold-panel--bottom .trifold-face--front {
+    padding: 0;
   }
   .std-hd-heading {
     font-size: 26px;
