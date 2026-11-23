@@ -31,8 +31,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Gentle mid-low target volume (32%) so music never blasts on open
   let userVolume = 0.32;
   let lastNonZeroVolume = 0.32;
-  const FADE_IN_DURATION_MS = 4200;
-  const FADE_OUT_DURATION_MS = 650;
+  const FADE_IN_DURATION_MS = 8500;
+  const FADE_OUT_DURATION_MS = 800;
 
   // Ensure initial audio element volume is strictly 0 before playback starts
   if (bgMusic) {
@@ -71,10 +71,11 @@ document.addEventListener('DOMContentLoaded', () => {
     function step(now) {
       const elapsed = now - startTime;
       const progress = Math.min(1, elapsed / durationMs);
-      // Cubic ease-in-out so the start stays very soft and swells smoothly to mid volume
-      const eased = progress < 0.5
-        ? 4 * progress * progress * progress
-        : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+      // Perceptually smooth fade-in (power curve stays whisper-quiet early so the swell is unmistakably audible)
+      const isFadingIn = toVol > fromVol;
+      const eased = isFadingIn
+        ? Math.pow(progress, 2.4)
+        : 1 - Math.pow(1 - progress, 2);
 
       const currentVol = Math.max(0, Math.min(1, fromVol + (toVol - fromVol) * eased));
       bgMusic.volume = currentVol;
