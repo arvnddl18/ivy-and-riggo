@@ -28,12 +28,12 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Hanken+Grotesk:wght@300;400;500;700;800&family=Lato:wght@300;400;700&family=Pinyon+Script&display=swap" rel="stylesheet" />
 
-  <link rel="stylesheet" href="/css/save-the-date.css?v=10" />
+  <link rel="stylesheet" href="/css/save-the-date.css?v=11" />
 </head>
 <body>
 
-  <!-- Background Music Player (MP4 audio track, gentle fade-in from 0 to soft mid volume) -->
-  <video id="bgMusic" src="/assets/bg-music.mp4" loop playsinline preload="auto" aria-hidden="true" style="position:fixed;width:1px;height:1px;opacity:0;pointer-events:none;"></video>
+  <!-- Background Music Player (MP4 audio track, starts fading in on full page load and reaches full volume as the letter opens) -->
+  <video id="bgMusic" src="/assets/bg-music.mp4" autoplay loop playsinline preload="auto" aria-hidden="true" style="position:fixed;width:1px;height:1px;opacity:0;pointer-events:none;"></video>
 
   <!-- Floating Compact Music Control Dock (Play/Pause + Volume Slider + Mute) -->
   <div class="music-dock" id="musicDock" role="region" aria-label="Background Music Controls">
@@ -187,7 +187,7 @@
 
       <div class="envelope-caption">
         <span class="envelope-caption__line"></span>
-        <span class="envelope-caption__text">Tap the seal to open</span>
+        <span class="envelope-caption__text">Opening the seal</span>
         <span class="envelope-caption__line"></span>
       </div>
     </div>
@@ -243,6 +243,6 @@
     </div>
   </div>
 
-  <script src="/js/save-the-date.js?v=10"></script>
+  <script src="/js/save-the-date.js?v=11"></script>
 </body>
 </html>

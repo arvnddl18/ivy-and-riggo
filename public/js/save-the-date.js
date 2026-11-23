@@ -28,10 +28,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const backToCardBtn = document.getElementById('backToCardBtn');
 
   let fadeRafId = null;
-  // Gentle mid-low target volume (32%) so music never blasts on open
+  let isFadingIn = false;
+  let gestureFallbackArmed = false;
+  let autoOpenTimerId = null;
+
+  // Gentle mid-low target volume (32%) so music is warm and clearly hearable when the letter opens
   let userVolume = 0.32;
   let lastNonZeroVolume = 0.32;
-  const FADE_IN_DURATION_MS = 8500;
+  const AUTO_OPEN_DELAY_MS = 2000;
+  const UNFOLD_SETTLE_MS = 2750;
+  // Total fade-in from full page load (0ms) to letter completely opened (2000ms delay + 2750ms unfold = 4750ms)
+  const FADE_IN_DURATION_MS = AUTO_OPEN_DELAY_MS + UNFOLD_SETTLE_MS;
   const FADE_OUT_DURATION_MS = 800;
 
   // Ensure initial audio element volume is strictly 0 before playback starts
@@ -60,21 +67,23 @@ document.addEventListener('DOMContentLoaded', () => {
       cancelAnimationFrame(fadeRafId);
       fadeRafId = null;
     }
+    isFadingIn = false;
   }
 
   function fadeVolume(fromVol, toVol, durationMs, onComplete) {
     if (!bgMusic) return;
     cancelFade();
     const startTime = performance.now();
+    const rising = toVol > fromVol;
+    isFadingIn = rising;
     bgMusic.volume = Math.max(0, Math.min(1, fromVol));
 
     function step(now) {
       const elapsed = now - startTime;
       const progress = Math.min(1, elapsed / durationMs);
-      // Perceptually smooth fade-in (power curve stays whisper-quiet early so the swell is unmistakably audible)
-      const isFadingIn = toVol > fromVol;
-      const eased = isFadingIn
-        ? Math.pow(progress, 2.4)
+      // Smooth perceptual curve: starts soft on load, swells through the 2s seal delay, and reaches full hearable volume as the letter unfolds
+      const eased = rising
+        ? Math.pow(progress, 1.65)
         : 1 - Math.pow(1 - progress, 2);
 
       const currentVol = Math.max(0, Math.min(1, fromVol + (toVol - fromVol) * eased));
@@ -85,6 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
         fadeRafId = requestAnimationFrame(step);
       } else {
         fadeRafId = null;
+        isFadingIn = false;
         if (typeof onComplete === 'function') onComplete();
       }
     }
@@ -99,9 +109,39 @@ document.addEventListener('DOMContentLoaded', () => {
     musicLabel.textContent = playing ? 'Music On' : 'Music Off';
   }
 
-  function startMusicWithGentleFadeIn() {
+  function armAutoplayGestureFallback() {
+    if (gestureFallbackArmed) return;
+    gestureFallbackArmed = true;
+
+    const events = ['pointerdown', 'touchstart', 'click', 'keydown', 'wheel'];
+    function onFirstGesture(e) {
+      // Ignore clicks on the music toggle/mute/slider itself so we don't conflict with direct controls
+      if (e && e.target && e.target.closest && e.target.closest('#musicDock')) {
+        cleanup();
+        return;
+      }
+      cleanup();
+      if (bgMusic && bgMusic.paused) {
+        startMusicWithGentleFadeIn(UNFOLD_SETTLE_MS);
+      }
+    }
+    function cleanup() {
+      gestureFallbackArmed = false;
+      events.forEach((evt) => window.removeEventListener(evt, onFirstGesture, true));
+    }
+    events.forEach((evt) => window.addEventListener(evt, onFirstGesture, { capture: true, passive: true }));
+  }
+
+  function startMusicWithGentleFadeIn(customDurationMs) {
     if (!bgMusic) return;
+    // If already playing and fading in from page load, let the continuous fade-in finish uninterrupted
+    if (!bgMusic.paused && (isFadingIn || bgMusic.volume > 0.01)) {
+      updateMusicUI(true);
+      return;
+    }
+
     cancelFade();
+    const duration = typeof customDurationMs === 'number' ? customDurationMs : FADE_IN_DURATION_MS;
     bgMusic.volume = 0;
     syncSliderUI(0);
 
@@ -111,9 +151,13 @@ document.addEventListener('DOMContentLoaded', () => {
       playPromise
         .then(() => {
           updateMusicUI(true);
-          fadeVolume(0, target, FADE_IN_DURATION_MS);
+          fadeVolume(0, target, duration);
         })
-        .catch(() => updateMusicUI(false));
+        .catch(() => {
+          updateMusicUI(false);
+          syncSliderUI(userVolume);
+          armAutoplayGestureFallback();
+        });
     }
   }
 
@@ -213,18 +257,21 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   syncLetterGeometry();
-  window.addEventListener('load', syncLetterGeometry);
   window.addEventListener('resize', () => {
     if (!isOpened) syncLetterGeometry();
   });
 
   function openSaveTheDate() {
     if (isOpened) return;
+    if (autoOpenTimerId !== null) {
+      clearTimeout(autoOpenTimerId);
+      autoOpenTimerId = null;
+    }
     syncLetterGeometry();
     isOpened = true;
 
-    // 1. Start gentle low-to-mid background music fade-in immediately
-    startMusicWithGentleFadeIn();
+    // 1. Ensure background music fade-in is running (if already fading in from page load, continues seamlessly)
+    startMusicWithGentleFadeIn(UNFOLD_SETTLE_MS);
 
     // 2. Phase 1 (0ms): Dissolve wax seal & flip 3D envelope flap open
     if (unifiedStage) {
@@ -248,12 +295,40 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }, 1350);
 
-    // 5. Phase 4 (2750ms): Unified flat letter settles with soft paper shadow
+    // 5. Phase 4 (2750ms): Unified flat letter settles with soft paper shadow as music reaches full target volume
     setTimeout(() => {
       if (unifiedStage) {
         unifiedStage.classList.add('phase-settled');
       }
-    }, 2750);
+    }, UNFOLD_SETTLE_MS);
+  }
+
+  // Wait until the page (and web fonts) are fully loaded, then:
+  // - Immediately start the music fade-in (0% -> 32% over 4.75s)
+  // - After a 2-second delay ("Opening the seal"), automatically trigger openSaveTheDate()
+  let autoSequenceStarted = false;
+  function startAutoOpenSequenceOnFullLoad() {
+    if (autoSequenceStarted) return;
+    autoSequenceStarted = true;
+
+    const fontsReady = (document.fonts && document.fonts.ready)
+      ? document.fonts.ready.catch(() => {})
+      : Promise.resolve();
+
+    fontsReady.then(() => {
+      syncLetterGeometry();
+      startMusicWithGentleFadeIn(FADE_IN_DURATION_MS);
+      autoOpenTimerId = setTimeout(() => {
+        autoOpenTimerId = null;
+        openSaveTheDate();
+      }, AUTO_OPEN_DELAY_MS);
+    });
+  }
+
+  if (document.readyState === 'complete') {
+    startAutoOpenSequenceOnFullLoad();
+  } else {
+    window.addEventListener('load', startAutoOpenSequenceOnFullLoad, { once: true });
   }
 
   function openWarningModal() {
