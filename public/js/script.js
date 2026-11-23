@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
   appearElements.forEach((el) => appearObserver.observe(el));
 
   /* ==========================================================================
-     4. 13-Field Studio.Design RSVP Form Submission & Persistence
+     4. 13-Field Studio.Design RSVP Form -> Cloudflare D1 Backend (/api/rsvp)
      ========================================================================== */
   const rsvpForm = document.getElementById('rsvpForm');
   const rsvpConfirmation = document.getElementById('rsvpConfirmation');
@@ -97,20 +97,41 @@ document.addEventListener('DOMContentLoaded', () => {
   const rsvpResetBtn = document.getElementById('rsvpResetBtn');
 
   if (rsvpForm) {
-    rsvpForm.addEventListener('submit', (e) => {
+    rsvpForm.addEventListener('submit', async (e) => {
       e.preventDefault();
+      const submitBtn = rsvpForm.querySelector('button[type="submit"]');
+      const originalBtnText = submitBtn ? submitBtn.textContent : 'Submit';
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Sending...';
+      }
+
       const formData = new FormData(rsvpForm);
       const payload = Object.fromEntries(formData.entries());
 
       try {
-        const existing = JSON.parse(localStorage.getItem('riggo_ivy_rsvps') || '[]');
-        existing.push({
-          ...payload,
-          submittedAt: new Date().toISOString(),
+        const res = await fetch('/api/rsvp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
         });
-        localStorage.setItem('riggo_ivy_rsvps', JSON.stringify(existing));
-      } catch (_) {
-        // Ignore storage quota errors
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.error || 'Failed to submit RSVP');
+        }
+      } catch (err) {
+        // Fallback to localStorage if previewed without Workers backend
+        console.warn('RSVP API fallback:', err.message);
+        try {
+          const existing = JSON.parse(localStorage.getItem('riggo_ivy_rsvps') || '[]');
+          existing.push({ ...payload, submittedAt: new Date().toISOString() });
+          localStorage.setItem('riggo_ivy_rsvps', JSON.stringify(existing));
+        } catch (_) {}
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalBtnText;
+        }
       }
 
       if (rsvpGuestNameSpan) {

@@ -1,0 +1,13 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "ivy-and-riggo",
+  "compatibility_date": "2026-11-23",
+  "pages_build_output_dir": "./public",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "ivy-riggo-wedding-db",
+      "database_id": "e702f2d4-6ae3-4a71-a07c-61ff93108dff"
+    }
+  ]
+}

@@ -10,12 +10,12 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,600&family=Great+Vibes&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
 
-  <link rel="stylesheet" href="save-the-date.css?v=5" />
+  <link rel="stylesheet" href="/css/save-the-date.css" />
 </head>
 <body>
 
   <!-- Background Music Player (MP4 audio track, gentle fade-in from 0 to soft mid volume) -->
-  <video id="bgMusic" src="assets/bg-music.mp4" loop playsinline preload="auto" aria-hidden="true" style="position:fixed;width:1px;height:1px;opacity:0;pointer-events:none;"></video>
+  <video id="bgMusic" src="/assets/bg-music.mp4" loop playsinline preload="auto" aria-hidden="true" style="position:fixed;width:1px;height:1px;opacity:0;pointer-events:none;"></video>
 
   <!-- Floating Compact Music Control Dock (Play/Pause + Volume Slider + Mute) -->
   <div class="music-dock" id="musicDock" role="region" aria-label="Background Music Controls">
@@ -73,7 +73,7 @@
 
         <!-- Peek of the ACTUAL Save the Date card sliding out of the envelope -->
         <div class="env-letter-peek">
-          <img src="assets/save-the-date.png" alt="" aria-hidden="true" />
+          <img src="/assets/save-the-date.png" alt="" aria-hidden="true" />
         </div>
 
         <!-- Envelope side & bottom folds -->
@@ -89,7 +89,7 @@
           <span class="wax-seal-pulse" aria-hidden="true"></span>
           <div class="wax-seal">
             <div class="wax-seal__inner-ring">
-              <img src="rg-ivy-cream.png" alt="RG &amp; IVY Wax Seal" />
+              <img src="/assets/rg-ivy-cream.png" alt="RG &amp; IVY Wax Seal" />
             </div>
           </div>
         </div>
@@ -156,7 +156,7 @@
         </div>
 
         <div class="warning-monogram">
-          <img src="rg-ivy-monogram.png" alt="RG &amp; IVY" />
+          <img src="/assets/rg-ivy-monogram.png" alt="RG &amp; IVY" />
         </div>
 
         <div class="warning-actions">
@@ -171,6 +171,6 @@
     </div>
   </div>
 
-  <script src="save-the-date.js?v=5"></script>
+  <script src="/js/save-the-date.js"></script>
 </body>
 </html>
