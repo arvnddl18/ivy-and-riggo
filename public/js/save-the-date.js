@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const openCardBtn = document.getElementById('openCardBtn');
   const stdCardFrame = document.getElementById('stdCardFrame');
   const panelTop = stdCardFrame ? stdCardFrame.querySelector('.trifold-panel--top') : null;
+  const panelMiddle = stdCardFrame ? stdCardFrame.querySelector('.trifold-panel--middle') : null;
   const closeCardBtn = document.getElementById('closeCardBtn');
   const doneViewingBtn = document.getElementById('doneViewingBtn');
 
@@ -35,9 +36,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // Gentle mid-low target volume (32%) so music is warm and clearly hearable when the letter opens
   let userVolume = 0.32;
   let lastNonZeroVolume = 0.32;
-  const AUTO_OPEN_DELAY_MS = 2000;
-  const UNFOLD_SETTLE_MS = 2750;
-  // Total fade-in from full page load (0ms) to letter completely opened (2000ms delay + 2750ms unfold = 4750ms)
+  const AUTO_OPEN_DELAY_MS = 4500;
+  const UNFOLD_SETTLE_MS = 6400;
+  // Total fade-in from full page load (0ms) to letter completely opened (4500ms delay + 6400ms open & 2-stage unfold = 10900ms)
   const FADE_IN_DURATION_MS = AUTO_OPEN_DELAY_MS + UNFOLD_SETTLE_MS;
   const FADE_OUT_DURATION_MS = 800;
 
@@ -79,14 +80,15 @@ document.addEventListener('DOMContentLoaded', () => {
     bgMusic.volume = Math.max(0, Math.min(1, fromVol));
 
     function step(now) {
-      const elapsed = now - startTime;
-      const progress = Math.min(1, elapsed / durationMs);
-      // Smooth perceptual curve: starts soft on load, swells through the 2s seal delay, and reaches full hearable volume as the letter unfolds
+      const elapsed = Math.max(0, now - startTime);
+      const progress = Math.max(0, Math.min(1, elapsed / durationMs));
+      // Smooth perceptual curve: starts soft on load, swells through the 4.5s seal delay, and reaches full hearable volume as the letter finishes unfolding
       const eased = rising
-        ? Math.pow(progress, 1.65)
+        ? Math.pow(progress, 1.8)
         : 1 - Math.pow(1 - progress, 2);
 
-      const currentVol = Math.max(0, Math.min(1, fromVol + (toVol - fromVol) * eased));
+      const rawVol = fromVol + (toVol - fromVol) * eased;
+      const currentVol = Number.isFinite(rawVol) ? Math.max(0, Math.min(1, rawVol)) : toVol;
       bgMusic.volume = currentVol;
       syncSliderUI(currentVol);
 
@@ -227,8 +229,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const vh = window.innerHeight;
     const envH = luxuryEnvelope.offsetHeight || 295;
     const envW = luxuryEnvelope.offsetWidth || 440;
-    const cardW = stdCardFrame.offsetWidth || 470;
-    const h1 = panelTop.offsetHeight || 380;
+    const cardW = stdCardFrame.offsetWidth || 390;
+    const h1 = panelTop.offsetHeight || 378;
+    const h2 = panelMiddle ? (panelMiddle.offsetHeight || 178) : 178;
     const clipStyle = window.getComputedStyle(letterPocketClip);
     const padTop = parseFloat(clipStyle.paddingTop) || 72;
     const rootStyle = window.getComputedStyle(document.documentElement);
@@ -250,6 +253,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const desiredPullTop = Math.max(24, pulledEnvTop - envH * 0.46);
     const pullY = desiredPullTop - padTop - h1 * pullScale;
 
+    stdCardFrame.style.setProperty('--panel-middle-h', `${h2}px`);
     stdCardFrame.style.setProperty('--letter-tuck-scale', tuckScale.toFixed(4));
     stdCardFrame.style.setProperty('--letter-pull-scale', pullScale.toFixed(4));
     stdCardFrame.style.setProperty('--letter-tuck-y', `${tuckY.toFixed(1)}px`);
@@ -273,19 +277,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // 1. Ensure background music fade-in is running (if already fading in from page load, continues seamlessly)
     startMusicWithGentleFadeIn(UNFOLD_SETTLE_MS);
 
-    // 2. Phase 1 (0ms): Dissolve wax seal & flip 3D envelope flap open
+    // 2. Phase 1 (0ms): Dissolve wax seal & slowly flip 3D envelope flap open
     if (unifiedStage) {
       unifiedStage.classList.add('phase-flap');
     }
 
-    // 3. Phase 2 (480ms): The real folded 3-panel letter rises smoothly out of the envelope as the envelope glides down
+    // 3. Phase 2 (900ms): The real folded 3-panel letter rises slowly out of the envelope as the envelope glides down
     setTimeout(() => {
       if (unifiedStage) {
         unifiedStage.classList.add('phase-pull');
       }
-    }, 480);
+    }, 900);
 
-    // 4. Phase 3 (1350ms): Continuous unfold — envelope finishes gliding away while the top & bottom letter panels unfold in 3D
+    // 4. Phase 3A — 1st Unfold (2500ms): Top panel unfolds upward (revealing SAVE OUR DATE + Photo) while Panel 3 still covers the middle panel!
     setTimeout(() => {
       if (unifiedStage) {
         unifiedStage.classList.add('phase-unfold');
@@ -293,9 +297,16 @@ document.addEventListener('DOMContentLoaded', () => {
       if (stdCardFrame) {
         stdCardFrame.setAttribute('aria-hidden', 'false');
       }
-    }, 1350);
+    }, 2500);
 
-    // 5. Phase 4 (2750ms): Unified flat letter settles with soft paper shadow as music reaches full target volume
+    // 5. Phase 3B — 2nd Unfold (4350ms): Bottom panel unfolds downward, revealing BOTH the middle (Riggo AND Ivy + Date) and bottom (Attire + Monogram) sections!
+    setTimeout(() => {
+      if (unifiedStage) {
+        unifiedStage.classList.add('phase-unfold-2');
+      }
+    }, 4350);
+
+    // 6. Phase 4 (6400ms): Unified flat letter settles with soft paper shadow as music reaches full target volume
     setTimeout(() => {
       if (unifiedStage) {
         unifiedStage.classList.add('phase-settled');

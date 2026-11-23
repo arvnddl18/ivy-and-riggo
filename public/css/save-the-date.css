@@ -309,9 +309,9 @@ body {
   padding: 24px;
   perspective: 1600px;
   transition:
-    transform 1150ms cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 850ms cubic-bezier(0.22, 1, 0.36, 1),
-    visibility 0ms linear 1200ms;
+    transform 1750ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 1250ms cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0ms linear 1800ms;
 }
 
 .envelope-layer--back {
@@ -409,7 +409,7 @@ body {
   transform: rotateX(0deg);
   z-index: 2;
   opacity: 0;
-  transition: transform 700ms cubic-bezier(0.32, 0.72, 0, 1), opacity 10ms linear 180ms;
+  transition: transform 1100ms cubic-bezier(0.32, 0.72, 0, 1), opacity 10ms linear 280ms;
 }
 
 /* Closed Flap on the FRONT layer (covers the top before click, flips up to 90deg and hands off seamlessly to back flap!) */
@@ -423,7 +423,7 @@ body {
   transform: rotateX(0deg);
   z-index: 6;
   filter: drop-shadow(0 8px 14px rgba(35, 48, 28, 0.12));
-  transition: transform 350ms cubic-bezier(0.4, 0, 0.6, 1), opacity 10ms linear 180ms;
+  transition: transform 550ms cubic-bezier(0.4, 0, 0.6, 1), opacity 10ms linear 280ms;
 }
 
 .unified-stage.phase-flap .env-flap-closed {
@@ -576,7 +576,7 @@ body {
   pointer-events: none;
   /* Clips strictly at the envelope's bottom edge (50vh + var(--env-h)/2 - 2px) while leaving the top 100% open */
   clip-path: inset(0px 0px calc(50vh - var(--env-h) / 2 + 2px) 0px);
-  transition: clip-path 1150ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: clip-path 1750ms cubic-bezier(0.22, 1, 0.36, 1);
   will-change: clip-path;
 }
 
@@ -609,9 +609,9 @@ body {
   /* Starts tucked physically inside the envelope pocket (exact --letter-tuck-y computed in JS for every screen) */
   transform: translateY(var(--letter-tuck-y, -40px)) scale(var(--letter-tuck-scale, 0.82));
   transition:
-    opacity 260ms ease,
-    transform 1150ms cubic-bezier(0.22, 1, 0.36, 1),
-    box-shadow 950ms cubic-bezier(0.22, 1, 0.36, 1) 1100ms;
+    opacity 360ms ease,
+    transform 1750ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 950ms cubic-bezier(0.22, 1, 0.36, 1);
   will-change: opacity, transform;
 }
 
@@ -710,12 +710,12 @@ body {
   opacity: 0;
 }
 
-/* PANEL 1 (TOP FOLD): Starts folded forward (-176deg) over Panel 2, then unfolds upward smoothly */
+/* PANEL 1 (TOP FOLD): Starts folded forward (-176deg) over Panel 3's back face, then unfolds upward in the 1st unfold */
 .trifold-panel--top {
   z-index: 4;
   transform-origin: bottom center;
-  transform: rotateX(-176deg);
-  transition: transform 1100ms cubic-bezier(0.22, 1, 0.36, 1) 140ms;
+  transform: translateZ(5px) rotateX(-176deg);
+  transition: transform 1800ms cubic-bezier(0.22, 1, 0.36, 1) 120ms;
 }
 
 .trifold-panel--top .trifold-face--front {
@@ -727,11 +727,14 @@ body {
 }
 
 .trifold-panel--top .trifold-face--back {
-  /* Bottom corners become the TOP corners when Panel 1 is folded downward (-176deg) inside the envelope */
+  /* Sized to exact Panel 2 height so when folded downward (-176deg) it matches the folded packet height with zero overhang */
+  top: auto;
+  bottom: 0;
+  height: var(--panel-middle-h, 178px);
   border-radius: 0 0 12px 12px;
 }
 
-/* PANEL 2 (CENTER ANCHOR): Stays flat in the middle */
+/* PANEL 2 (CENTER ANCHOR): Covered by Panel 3's folded back face during the 1st unfold, revealed during the 2nd unfold */
 .trifold-panel--middle {
   z-index: 2;
   background: var(--color-background);
@@ -743,19 +746,28 @@ body {
   transition: box-shadow 700ms ease;
 }
 
+.trifold-panel--middle .std-hd-names,
+.trifold-panel--middle .std-hd-date-block {
+  opacity: 0;
+  transition: opacity 250ms ease;
+}
+
+.unified-stage.phase-unfold-2 .trifold-panel--middle .std-hd-names,
+.unified-stage.phase-unfold-2 .trifold-panel--middle .std-hd-date-block {
+  opacity: 1;
+}
+
 .unified-stage.phase-settled .trifold-panel--middle {
   box-shadow: none;
 }
 
-/* PANEL 3 (BOTTOM FOLD): Starts hidden behind Panel 2 (opacity 0 until unfold so it never pokes out below the envelope pocket!) */
+/* PANEL 3 (BOTTOM FOLD): Starts folded UPWARD (178.5deg) covering Panel 2 during the 1st unfold, then unfolds downward in the 2nd unfold! */
 .trifold-panel--bottom {
   z-index: 3;
   transform-origin: top center;
-  transform: rotateX(176deg);
-  opacity: 0;
-  transition:
-    transform 1150ms cubic-bezier(0.22, 1, 0.36, 1) 500ms,
-    opacity 300ms ease 420ms;
+  transform: translateZ(2px) rotateX(178.5deg);
+  opacity: 1;
+  transition: transform 1950ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .trifold-panel--bottom .trifold-face--front {
@@ -765,14 +777,22 @@ body {
   align-items: center;
 }
 
-/* Continuous 3D Unfold in Phase 3 */
-.unified-stage.phase-unfold .trifold-panel--top {
-  transform: rotateX(0deg);
+.trifold-panel--bottom .trifold-face--back {
+  /* Covers Panel 2 edge-to-edge while folded upward (178.5deg), with zero protrusion above Panel 2 */
+  top: 0;
+  bottom: auto;
+  height: var(--panel-middle-h, 178px);
+  border-radius: 0;
 }
 
-.unified-stage.phase-unfold .trifold-panel--bottom {
-  opacity: 1;
-  transform: rotateX(0deg);
+/* 1st Unfold (phase-unfold): Top panel unfolds upward while Panel 3 still covers Panel 2 */
+.unified-stage.phase-unfold .trifold-panel--top {
+  transform: translateZ(0px) rotateX(0deg);
+}
+
+/* 2nd Unfold (phase-unfold-2): Bottom panel unfolds downward, revealing BOTH the middle and bottom sections of the letter! */
+.unified-stage.phase-unfold-2 .trifold-panel--bottom {
+  transform: translateZ(0px) rotateX(0deg);
 }
 
 /* 02 / Typography usage — SAVE OUR DATE: serif / 600 / 36px / -0.04em / normal / heading */
@@ -1000,11 +1020,11 @@ body {
   opacity: 0;
   transform: translateY(14px);
   transition:
-    opacity 700ms var(--ease-editorial) 1150ms,
-    transform 700ms var(--ease-editorial) 1150ms;
+    opacity 850ms var(--ease-editorial) 1300ms,
+    transform 850ms var(--ease-editorial) 1300ms;
 }
 
-.unified-stage.phase-unfold .std-card-actions {
+.unified-stage.phase-unfold-2 .std-card-actions {
   opacity: 1;
   transform: translateY(0);
 }
