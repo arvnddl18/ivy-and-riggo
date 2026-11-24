@@ -710,12 +710,61 @@ body {
   opacity: 0;
 }
 
-/* PANEL 1 (TOP FOLD): Starts folded forward (-176deg) over Panel 3's back face, then unfolds upward in the 1st unfold */
-.trifold-panel--top {
-  z-index: 4;
+/* ==========================================================================
+   Relay-Hinge 3D Fold Covers & Panels (Zero Upside-Down Bleed-Through!)
+   - Fold Cover 1 (.fold-cover--top) sits on top of Panel 2 and lifts UP (0deg -> 90deg)
+     during the first 850ms of the 1st unfold, handing off at exact 90deg edge-on to
+     Panel 1 (.trifold-panel--top), which unfolds from -90deg -> 0deg over 950ms!
+   - Fold Cover 2 (.fold-cover--middle) sits directly over Panel 2 (covering Riggo AND Ivy
+     100% opaquely throughout the 1st unfold!), then drops DOWN (0deg -> -90deg) during the
+     first 900ms of the 2nd unfold (progressively uncovering Riggo AND Ivy from top to bottom!),
+     handing off at exact -90deg edge-on to Panel 3 (.trifold-panel--bottom), which unfolds
+     from +90deg -> 0deg over 1000ms!
+   ========================================================================== */
+.fold-cover {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #ECEEE4 0%, #E3E6DA 100%);
+  border: 1px solid rgba(53, 66, 48, 0.12);
+  box-shadow: inset 0 0 28px rgba(35, 48, 28, 0.06);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  will-change: transform, opacity;
+}
+
+.fold-cover--top {
+  z-index: 12;
+  transform-origin: top center;
+  transform: rotateX(0deg);
+  border-radius: 12px 12px 0 0;
+  transition:
+    transform 850ms cubic-bezier(0.42, 0, 1, 1) 120ms,
+    opacity 10ms linear 970ms,
+    visibility 0ms linear 970ms;
+}
+
+.fold-cover--middle {
+  z-index: 10;
   transform-origin: bottom center;
-  transform: translateZ(5px) rotateX(-176deg);
-  transition: transform 1800ms cubic-bezier(0.22, 1, 0.36, 1) 120ms;
+  transform: rotateX(0deg);
+  border-radius: 0;
+  transition:
+    transform 900ms cubic-bezier(0.42, 0, 1, 1),
+    opacity 10ms linear 900ms,
+    visibility 0ms linear 900ms;
+}
+
+/* PANEL 1 (TOP FOLD): Waits edge-on at -90deg until .fold-cover--top reaches +90deg at 970ms, then unfolds -90deg -> 0deg */
+.trifold-panel--top {
+  z-index: 14;
+  transform-origin: bottom center;
+  transform: rotateX(-90deg);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    transform 950ms cubic-bezier(0, 0, 0.22, 1) 970ms,
+    opacity 10ms linear 970ms,
+    visibility 0ms linear 970ms;
 }
 
 .trifold-panel--top .trifold-face--front {
@@ -726,15 +775,7 @@ body {
   align-items: center;
 }
 
-.trifold-panel--top .trifold-face--back {
-  /* Sized to exact Panel 2 height so when folded downward (-176deg) it matches the folded packet height with zero overhang */
-  top: auto;
-  bottom: 0;
-  height: var(--panel-middle-h, 178px);
-  border-radius: 0 0 12px 12px;
-}
-
-/* PANEL 2 (CENTER ANCHOR): Covered by Panel 3's folded back face during the 1st unfold, revealed during the 2nd unfold */
+/* PANEL 2 (CENTER ANCHOR): Covered 100% by .fold-cover--middle until 2nd unfold swings .fold-cover--middle downward! */
 .trifold-panel--middle {
   z-index: 2;
   background: var(--color-background);
@@ -742,32 +783,27 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  perspective: 2200px;
+  perspective-origin: 50% 0%;
   box-shadow: 0 18px 42px rgba(35, 48, 28, 0.14);
   transition: box-shadow 700ms ease;
-}
-
-.trifold-panel--middle .std-hd-names,
-.trifold-panel--middle .std-hd-date-block {
-  opacity: 0;
-  transition: opacity 250ms ease;
-}
-
-.unified-stage.phase-unfold-2 .trifold-panel--middle .std-hd-names,
-.unified-stage.phase-unfold-2 .trifold-panel--middle .std-hd-date-block {
-  opacity: 1;
 }
 
 .unified-stage.phase-settled .trifold-panel--middle {
   box-shadow: none;
 }
 
-/* PANEL 3 (BOTTOM FOLD): Starts folded UPWARD (178.5deg) covering Panel 2 during the 1st unfold, then unfolds downward in the 2nd unfold! */
+/* PANEL 3 (BOTTOM FOLD): Waits edge-on at +90deg until .fold-cover--middle reaches -90deg at 900ms of phase-unfold-2, then unfolds +90deg -> 0deg */
 .trifold-panel--bottom {
-  z-index: 3;
+  z-index: 14;
   transform-origin: top center;
-  transform: translateZ(2px) rotateX(178.5deg);
-  opacity: 1;
-  transition: transform 1950ms cubic-bezier(0.22, 1, 0.36, 1);
+  transform: rotateX(90deg);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    transform 1050ms cubic-bezier(0, 0, 0.22, 1) 900ms,
+    opacity 10ms linear 900ms,
+    visibility 0ms linear 900ms;
 }
 
 .trifold-panel--bottom .trifold-face--front {
@@ -777,22 +813,30 @@ body {
   align-items: center;
 }
 
-.trifold-panel--bottom .trifold-face--back {
-  /* Covers Panel 2 edge-to-edge while folded upward (178.5deg), with zero protrusion above Panel 2 */
-  top: 0;
-  bottom: auto;
-  height: var(--panel-middle-h, 178px);
-  border-radius: 0;
+/* 1st Unfold (phase-unfold): .fold-cover--top lifts UP (0deg -> 90deg), then .trifold-panel--top unfolds (-90deg -> 0deg) while .fold-cover--middle still covers Panel 2! */
+.unified-stage.phase-unfold .fold-cover--top {
+  transform: rotateX(90deg);
+  opacity: 0;
+  visibility: hidden;
 }
 
-/* 1st Unfold (phase-unfold): Top panel unfolds upward while Panel 3 still covers Panel 2 */
 .unified-stage.phase-unfold .trifold-panel--top {
-  transform: translateZ(0px) rotateX(0deg);
+  transform: rotateX(0deg);
+  opacity: 1;
+  visibility: visible;
 }
 
-/* 2nd Unfold (phase-unfold-2): Bottom panel unfolds downward, revealing BOTH the middle and bottom sections of the letter! */
+/* 2nd Unfold (phase-unfold-2): .fold-cover--middle swings DOWN (0deg -> -90deg) uncovering Riggo AND Ivy, then .trifold-panel--bottom unfolds (+90deg -> 0deg)! */
+.unified-stage.phase-unfold-2 .fold-cover--middle {
+  transform: rotateX(-90deg);
+  opacity: 0;
+  visibility: hidden;
+}
+
 .unified-stage.phase-unfold-2 .trifold-panel--bottom {
-  transform: translateZ(0px) rotateX(0deg);
+  transform: rotateX(0deg);
+  opacity: 1;
+  visibility: visible;
 }
 
 /* 02 / Typography usage — SAVE OUR DATE: serif / 600 / 36px / -0.04em / normal / heading */

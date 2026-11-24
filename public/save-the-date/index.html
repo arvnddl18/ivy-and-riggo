@@ -28,7 +28,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Hanken+Grotesk:wght@300;400;500;700;800&family=Lato:wght@300;400;700&family=Pinyon+Script&display=swap" rel="stylesheet" />
 
-  <link rel="stylesheet" href="/css/save-the-date.css?v=12" />
+  <link rel="stylesheet" href="/css/save-the-date.css?v=13" />
 </head>
 <body>
 
@@ -106,13 +106,19 @@
             </div>
             <p class="std-hd-kicker">( WE’RE GETTING MARRIED )</p>
           </div>
-          <div class="trifold-face trifold-face--back" aria-hidden="true">
-            <div class="trifold-back-paper"></div>
-          </div>
         </div>
 
         <!-- PANEL 2 (CENTER ANCHOR): Riggo AND Ivy + 01 . 23 . 2027 Davao City -->
         <div class="trifold-panel trifold-panel--middle">
+          <!-- 1st Folded Cover: Back of Panel 1 folded down over the packet; hinges UP (0deg -> 90deg) in 1st unfold -->
+          <div class="fold-cover fold-cover--top" aria-hidden="true">
+            <div class="trifold-back-paper"></div>
+          </div>
+          <!-- 2nd Folded Cover: Back of Panel 3 folded up over Panel 2; stays flat covering Panel 2 during 1st unfold, then hinges DOWN (0deg -> -90deg) in 2nd unfold -->
+          <div class="fold-cover fold-cover--middle" aria-hidden="true">
+            <div class="trifold-back-paper"></div>
+          </div>
+
           <div class="trifold-crease trifold-crease--top" aria-hidden="true"></div>
           <div class="std-hd-names">
             <span class="std-hd-script">Riggo</span>
@@ -150,9 +156,6 @@
             </div>
 
             <p class="std-hd-footer-note">FORMAL INVITATION TO FOLLOW</p>
-          </div>
-          <div class="trifold-face trifold-face--back" aria-hidden="true">
-            <div class="trifold-back-paper"></div>
           </div>
         </div>
 
@@ -243,6 +246,6 @@
     </div>
   </div>
 
-  <script src="/js/save-the-date.js?v=12"></script>
+  <script src="/js/save-the-date.js?v=13"></script>
 </body>
 </html>
