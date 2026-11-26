@@ -36,9 +36,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // Gentle mid-low target volume (32%) so music is warm and clearly hearable when the letter opens
   let userVolume = 0.32;
   let lastNonZeroVolume = 0.32;
-  const AUTO_OPEN_DELAY_MS = 4500;
+  const AUTO_OPEN_DELAY_MS = 1000;
   const UNFOLD_SETTLE_MS = 6400;
-  // Total fade-in from full page load (0ms) to letter completely opened (4500ms delay + 6400ms open & 2-stage unfold = 10900ms)
+  // Total fade-in from start (0ms) to letter completely opened (1000ms delay + 6400ms open & 2-stage unfold = 7400ms)
   const FADE_IN_DURATION_MS = AUTO_OPEN_DELAY_MS + UNFOLD_SETTLE_MS;
   const FADE_OUT_DURATION_MS = 800;
 
@@ -314,16 +314,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }, UNFOLD_SETTLE_MS);
   }
 
-  // Wait until the page (and web fonts) are fully loaded, then:
-  // - Immediately start the music fade-in (0% -> 32% over 4.75s)
-  // - After a 2-second delay ("Opening the seal"), automatically trigger openSaveTheDate()
+  // Start the music fade-in and the exact 1-second (1000ms) auto-open timer immediately once DOM & fonts are ready
+  // (using a 500ms cap on fonts.ready so media buffering never adds extra startup delay!)
   let autoSequenceStarted = false;
   function startAutoOpenSequenceOnFullLoad() {
     if (autoSequenceStarted) return;
     autoSequenceStarted = true;
 
     const fontsReady = (document.fonts && document.fonts.ready)
-      ? document.fonts.ready.catch(() => {})
+      ? Promise.race([
+          document.fonts.ready.catch(() => {}),
+          new Promise((res) => setTimeout(res, 500))
+        ])
       : Promise.resolve();
 
     fontsReady.then(() => {
@@ -336,11 +338,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  if (document.readyState === 'complete') {
-    startAutoOpenSequenceOnFullLoad();
-  } else {
-    window.addEventListener('load', startAutoOpenSequenceOnFullLoad, { once: true });
-  }
+  startAutoOpenSequenceOnFullLoad();
 
   function openWarningModal() {
     if (!warningModal) return;
