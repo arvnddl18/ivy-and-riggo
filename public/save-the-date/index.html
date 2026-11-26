@@ -28,7 +28,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Hanken+Grotesk:wght@300;400;500;700;800&family=Lato:wght@300;400;700&family=Pinyon+Script&display=swap" rel="stylesheet" />
 
-  <link rel="stylesheet" href="/css/save-the-date.css?v=14" />
+  <link rel="stylesheet" href="/css/save-the-date.css?v=15" />
 </head>
 <body>
 
@@ -161,10 +161,26 @@
 
       </article>
 
-      <!-- Bottom Action Bar -->
+      <!-- Bottom Editorial Note CTA (Sticky floating stationery pill so guests see it immediately on mobile & desktop) -->
       <div class="std-card-actions">
-        <button type="button" class="std-action-btn std-action-btn--primary" id="doneViewingBtn">
-          An important message from our bride &amp; groom
+        <button type="button" class="std-note-cta" id="doneViewingBtn" aria-label="An important message from our bride and groom">
+          <span class="std-note-cta__seal" aria-hidden="true">
+            <span class="std-note-cta__pulse"></span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+              <polyline points="22,6 12,13 2,6"></polyline>
+            </svg>
+          </span>
+          <span class="std-note-cta__copy">
+            <span class="std-note-cta__kicker">Kindly Read · Personal Note</span>
+            <span class="std-note-cta__title">An important message from our bride &amp; groom</span>
+          </span>
+          <span class="std-note-cta__arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </span>
         </button>
       </div>
     </div>

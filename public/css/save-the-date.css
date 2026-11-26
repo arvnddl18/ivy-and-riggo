@@ -1054,48 +1054,165 @@ body {
   margin: 0;
 }
 
+/* ==========================================================================
+   Bottom Editorial Note CTA ("An important message from our bride & groom")
+   - Sticky at bottom: 16px inside the scroll container so guests immediately see it
+     on mobile & laptop screens as soon as the letter unfolds, without covering the card
+     when scrolled to the bottom.
+   ========================================================================== */
 .std-card-actions {
-  padding: 20px 24px 26px;
-  background: var(--color-background);
-  border-radius: var(--radius-none);
-  border-top: 1px solid rgba(47, 59, 35, 0.10);
+  position: sticky;
+  bottom: 16px;
+  z-index: 25;
+  width: 100%;
+  margin-top: 18px;
+  padding: 0 6px;
+  background: transparent;
   display: flex;
   justify-content: center;
   opacity: 0;
-  transform: translateY(14px);
+  pointer-events: none;
+  transform: translateY(18px);
   transition:
-    opacity 850ms var(--ease-editorial) 1300ms,
-    transform 850ms var(--ease-editorial) 1300ms;
+    opacity 800ms var(--ease-editorial) 1450ms,
+    transform 800ms var(--ease-editorial) 1450ms;
 }
 
 .unified-stage.phase-unfold-2 .std-card-actions {
   opacity: 1;
+  pointer-events: auto;
   transform: translateY(0);
 }
 
-.std-action-btn {
+.std-note-cta {
+  position: relative;
   width: 100%;
-  padding: 15px 18px;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 11px 14px 11px 12px;
   border-radius: 999px;
-  border: none;
-  font-family: var(--font-sans);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  line-height: 1.4;
-  text-transform: uppercase;
+  border: 1px solid rgba(114, 38, 41, 0.24);
+  background: rgba(250, 249, 244, 0.95);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow:
+    0 16px 38px rgba(35, 48, 28, 0.18),
+    0 4px 12px rgba(114, 38, 41, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
   cursor: pointer;
-  transition: transform 0.25s var(--ease-editorial), background-color 0.25s ease;
+  text-align: left;
+  transition:
+    transform 0.3s var(--ease-editorial),
+    box-shadow 0.3s var(--ease-editorial),
+    border-color 0.25s ease,
+    background-color 0.25s ease;
 }
 
-.std-action-btn--primary {
-  background: var(--bg-forest);
-  color: #F2F3ED;
-}
-
-.std-action-btn--primary:hover {
+.std-note-cta:hover {
   transform: translateY(-2px);
-  background: #354230;
+  background: #FFFFFF;
+  border-color: rgba(114, 38, 41, 0.45);
+  box-shadow:
+    0 20px 44px rgba(35, 48, 28, 0.22),
+    0 6px 16px rgba(114, 38, 41, 0.16),
+    inset 0 1px 0 #FFFFFF;
+}
+
+.std-note-cta:active {
+  transform: translateY(0);
+}
+
+/* Miniature Crimson Wax-Seal Emblem on the left */
+.std-note-cta__seal {
+  position: relative;
+  width: 38px;
+  min-width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 28%, var(--crimson-light) 0%, var(--crimson) 55%, var(--crimson-dark) 100%);
+  box-shadow:
+    0 4px 10px rgba(78, 22, 25, 0.32),
+    inset 0 1px 3px rgba(255, 220, 220, 0.28);
+  color: #FAF9F4;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.std-note-cta__seal svg {
+  width: 17px;
+  height: 17px;
+  position: relative;
+  z-index: 2;
+}
+
+.std-note-cta__pulse {
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(114, 38, 41, 0.38);
+  animation: sealPulse 2.6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Editorial two-line copy stack */
+.std-note-cta__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1;
+  min-width: 0;
+}
+
+.std-note-cta__kicker {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--crimson);
+  line-height: 1.2;
+}
+
+.std-note-cta__title {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-style: italic;
+  font-size: 17px;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: var(--color-text);
+}
+
+/* Right Arrow Circle */
+.std-note-cta__arrow {
+  width: 30px;
+  min-width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(114, 38, 41, 0.08);
+  color: var(--crimson);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition:
+    transform 0.3s var(--ease-editorial),
+    background-color 0.25s ease,
+    color 0.25s ease;
+}
+
+.std-note-cta__arrow svg {
+  width: 15px;
+  height: 15px;
+}
+
+.std-note-cta:hover .std-note-cta__arrow {
+  transform: translateX(3px);
+  background: var(--crimson);
+  color: #FFFFFF;
 }
 
 /* ==========================================================================
@@ -1419,6 +1536,18 @@ body {
   }
   .trifold-panel--bottom .trifold-face--front {
     padding: 17px 20px 32px;
+  }
+  .std-note-cta {
+    gap: 10px;
+    padding: 10px 12px 10px 10px;
+  }
+  .std-note-cta__seal {
+    width: 34px;
+    min-width: 34px;
+    height: 34px;
+  }
+  .std-note-cta__title {
+    font-size: 15.5px;
   }
   .warning-dialog {
     padding: 32px 22px 26px;
