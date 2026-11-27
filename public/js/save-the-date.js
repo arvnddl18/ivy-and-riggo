@@ -263,6 +263,35 @@ document.addEventListener('DOMContentLoaded', () => {
   let isOpened = false;
 
   /**
+   * Tracks actual unobstructed viewport height (--vvh) above mobile browser bottom toolbars
+   * (including Chrome on iOS "Ask Gemini / New Tab / All Tabs", Safari tab bar, and Messenger).
+   */
+  function syncViewportHeight() {
+    const vv = window.visualViewport;
+    const isUnzoomed = vv && vv.height > 0 && (!vv.scale || vv.scale <= 1.02);
+    let visibleH = isUnzoomed
+      ? Math.min(window.innerHeight, vv.height)
+      : window.innerHeight;
+
+    const ua = navigator.userAgent || '';
+    const isCriOSPhone = /\bCriOS\b/i.test(ua) && /\biPhone\b/i.test(ua);
+    if (isCriOSPhone && window.innerHeight > window.innerWidth && window.screen && window.screen.height) {
+      const screenH = Math.max(window.screen.height, window.screen.width);
+      const chromeUiLoss = screenH - visibleH;
+      if (chromeUiLoss >= 0 && chromeUiLoss < 145) {
+        const bottomBarAllowance = screenH >= 800 ? 88 : 56;
+        visibleH = Math.max(320, visibleH - bottomBarAllowance);
+      }
+    }
+
+    if (visibleH > 0) {
+      document.documentElement.style.setProperty('--vvh', `${Math.round(visibleH)}px`);
+    }
+  }
+
+  syncViewportHeight();
+
+  /**
    * Computes exact pixel translateY & scale values so the folded 3-panel letter:
    * 1. Starts tucked strictly inside the envelope pocket (width = 86% of envelope, top edge inside the pocket).
    * 2. Rises cleanly out of the V-notch during phase-pull (showing ~46% of envelope height above the top edge).
@@ -271,7 +300,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function syncLetterGeometry() {
     if (!stdCardFrame || !luxuryEnvelope || !panelTop || !letterPocketClip) return;
 
-    const vh = window.innerHeight;
+    const vh = letterPocketClip.clientHeight || window.innerHeight;
     const envH = luxuryEnvelope.offsetHeight || 295;
     const envW = luxuryEnvelope.offsetWidth || 440;
     const cardW = stdCardFrame.offsetWidth || 390;
@@ -306,9 +335,16 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   syncLetterGeometry();
-  window.addEventListener('resize', () => {
+  function handleViewportChange() {
+    syncViewportHeight();
     if (!isOpened) syncLetterGeometry();
-  });
+  }
+  window.addEventListener('resize', handleViewportChange, { passive: true });
+  window.addEventListener('orientationchange', handleViewportChange, { passive: true });
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', handleViewportChange, { passive: true });
+    window.visualViewport.addEventListener('scroll', syncViewportHeight, { passive: true });
+  }
 
   function openSaveTheDate() {
     if (isOpened) return;
