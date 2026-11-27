@@ -41,10 +41,53 @@ document.addEventListener('DOMContentLoaded', () => {
   // Total fade-in from start (0ms) to letter completely opened (1000ms delay + 6400ms open & 2-stage unfold = 7400ms)
   const FADE_IN_DURATION_MS = AUTO_OPEN_DELAY_MS + UNFOLD_SETTLE_MS;
   const FADE_OUT_DURATION_MS = 800;
+  // Start at 0:41.0 ("Everything makes perfect sense with you...") so the 7.4s fade-in & unfold
+  // lands right on the 0:48.2 chorus drop ("With my arms wide open") at full target volume
+  const MUSIC_START_TIME_SEC = 41.0;
+  let initialSeekApplied = false;
 
-  // Ensure initial audio element volume is strictly 0 before playback starts
+  function applyInitialStartTime() {
+    if (!bgMusic || initialSeekApplied || bgMusic.readyState < 1) return;
+    const duration = bgMusic.duration;
+    const targetTime = (Number.isFinite(duration) && duration > 0 && duration <= MUSIC_START_TIME_SEC)
+      ? 0
+      : MUSIC_START_TIME_SEC;
+
+    let seekable = false;
+    if (bgMusic.seekable) {
+      for (let i = 0; i < bgMusic.seekable.length; i++) {
+        if (targetTime >= bgMusic.seekable.start(i) && targetTime <= bgMusic.seekable.end(i)) {
+          seekable = true;
+          break;
+        }
+      }
+    }
+    if (!seekable && bgMusic.readyState < 3) return;
+
+    try {
+      bgMusic.currentTime = targetTime;
+      if (bgMusic.seeking || Math.abs(bgMusic.currentTime - targetTime) < 1.5) {
+        initialSeekApplied = true;
+      }
+    } catch (_) {
+      // Defer until canplay/playing if media is not yet seekable
+    }
+  }
+
+  // Ensure initial audio volume is 0, initial start offset (41.0s) is queued, and end-of-track loop is active
   if (bgMusic) {
     bgMusic.volume = 0;
+    bgMusic.loop = true;
+    applyInitialStartTime();
+    if (!initialSeekApplied) {
+      bgMusic.addEventListener('loadedmetadata', applyInitialStartTime, { once: true });
+      bgMusic.addEventListener('canplay', applyInitialStartTime, { once: true });
+      bgMusic.addEventListener('playing', applyInitialStartTime, { once: true });
+    }
+    bgMusic.addEventListener('ended', () => {
+      bgMusic.currentTime = 0;
+      bgMusic.play().catch(() => {});
+    });
   }
 
   function syncSliderUI(vol01) {
@@ -146,6 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const duration = typeof customDurationMs === 'number' ? customDurationMs : FADE_IN_DURATION_MS;
     bgMusic.volume = 0;
     syncSliderUI(0);
+    applyInitialStartTime();
 
     const target = userVolume > 0 ? userVolume : lastNonZeroVolume;
     const playPromise = bgMusic.play();
@@ -188,6 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (bgMusic) {
         bgMusic.volume = userVolume;
         if (bgMusic.paused && userVolume > 0) {
+          applyInitialStartTime();
           bgMusic.play().then(() => updateMusicUI(true)).catch(() => {});
         }
       }

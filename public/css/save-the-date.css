@@ -1066,7 +1066,7 @@ body {
   z-index: 25;
   width: 100%;
   margin-top: 18px;
-  padding: 0 6px;
+  padding: 0;
   background: transparent;
   display: flex;
   justify-content: center;

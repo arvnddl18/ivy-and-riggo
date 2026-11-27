@@ -28,12 +28,12 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Hanken+Grotesk:wght@300;400;500;700;800;900&family=Lato:wght@300;400;700&family=Pinyon+Script&display=swap" rel="stylesheet" />
 
-  <link rel="stylesheet" href="/css/save-the-date.css?v=17" />
+  <link rel="stylesheet" href="/css/save-the-date.css?v=19" />
 </head>
 <body>
 
-  <!-- Background Music Player (MP4 audio track, starts fading in on full page load and reaches full volume as the letter opens) -->
-  <video id="bgMusic" src="/assets/bg-music.mp4" autoplay loop playsinline preload="auto" aria-hidden="true" style="position:fixed;width:1px;height:1px;opacity:0;pointer-events:none;"></video>
+  <!-- Background Music Player (LANY — Destiny full MP3: starts at 0:41.0 so chorus hits as the letter finishes unfolding, then loops at the end) -->
+  <audio id="bgMusic" src="/assets/bg-music.mp3" loop preload="auto" aria-hidden="true"></audio>
 
   <!-- Floating Compact Music Control Dock (Play/Pause + Volume Slider + Mute) -->
   <div class="music-dock" id="musicDock" role="region" aria-label="Background Music Controls">
@@ -260,6 +260,6 @@
     </div>
   </div>
 
-  <script src="/js/save-the-date.js?v=16"></script>
+  <script src="/js/save-the-date.js?v=18"></script>
 </body>
 </html>
