@@ -1,11 +1,11 @@
 {
-  "name": "ivy-and-riggo-wedding",
+  "name": "riggo-and-ivy-wedding",
   "version": "1.0.0",
   "private": true,
   "description": "Riggo & Ivy Wedding Invitation, Save Our Date, and Cloudflare D1 RSVP Backend",
   "scripts": {
     "dev": "npx wrangler pages dev ./public",
-    "deploy": "npx wrangler pages deploy ./public --project-name=ivy-and-riggo",
+    "deploy": "npx wrangler pages deploy ./public --project-name=riggo-and-ivy",
     "db:migrate:local": "npx wrangler d1 execute ivy-riggo-wedding-db --local --file=./db/schema.sql",
     "db:migrate:remote": "npx wrangler d1 execute ivy-riggo-wedding-db --remote --file=./db/schema.sql"
   }

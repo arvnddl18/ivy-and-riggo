@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "ivy-and-riggo",
+  "name": "riggo-and-ivy",
   "compatibility_date": "2026-11-23",
   "pages_build_output_dir": "./public",
   "d1_databases": [
