@@ -395,7 +395,7 @@ document.addEventListener('DOMContentLoaded', () => {
       acknowledgeBtn.textContent = 'I Understand 🤍';
     }
     // Force reflow so the warning badge & curtain intro replays from 0% every time
-    warningModal.classList.remove('is-open');
+    warningModal.classList.remove('is-open', 'is-closing');
     void warningModal.offsetWidth;
     warningModal.classList.add('is-open');
     warningModal.setAttribute('aria-hidden', 'false');
@@ -404,6 +404,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function closeWarningModal() {
     if (!warningModal) return;
+    if (warningModal.contains(document.activeElement)) {
+      if (doneViewingBtn && typeof doneViewingBtn.focus === 'function') {
+        doneViewingBtn.focus({ preventScroll: true });
+      } else if (typeof document.activeElement.blur === 'function') {
+        document.activeElement.blur();
+      }
+    }
+    warningModal.classList.add('is-closing');
     warningModal.classList.remove('is-open');
     warningModal.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = '';
@@ -439,15 +447,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   if (acknowledgeBtn) {
-    acknowledgeBtn.addEventListener('click', () => {
-      if (acknowledgedNote) {
-        acknowledgedNote.classList.add('is-visible');
-      }
-      acknowledgeBtn.textContent = 'Thank You 🤍';
-      setTimeout(() => {
-        closeWarningModal();
-      }, 1100);
-    });
+    acknowledgeBtn.addEventListener('click', closeWarningModal);
   }
 
   // Close warning modal on Escape key

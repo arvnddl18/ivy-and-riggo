@@ -1356,6 +1356,20 @@ body {
     transform 750ms var(--ease-editorial) 980ms;
 }
 
+/* Keep settled modal layout intact while backdrop fades out on close */
+.warning-backdrop.is-closing .warning-intro-curtain {
+  opacity: 0;
+}
+
+.warning-backdrop.is-closing .warning-badge {
+  transform: translateY(0) scale(0.3625);
+}
+
+.warning-backdrop.is-closing .warning-content {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 .warning-eyebrow {
   font-family: var(--font-sans);
   font-size: 10px;
